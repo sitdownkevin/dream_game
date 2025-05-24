@@ -99,15 +99,15 @@ class Workflow:
             print(situation_options)
 
         self.data = {
-            'soul': soul,
-            'theme': theme,
-            'background': background,
+            'soul': soul['soul'],
+            'theme': theme['theme'],
+            'background': background['background'],
             'character': character,
-            'dream_true': dream_true,
-            'dream_fake': dream_fake,
-            'condition_true': condition_true,
-            'condition_fake': condition_fake,
-            'situation': situation,
+            'dream_true': dream_true['dream'],
+            'dream_fake': dream_fake['dream'],
+            'condition_true': condition_true['condition'],
+            'condition_fake': condition_fake['condition'],
+            'situation': situation['description'],
             'situation_options': situation_options,
         }
 
@@ -115,6 +115,7 @@ class Workflow:
 async def main():
     workflow = Workflow(verbose=True)
     await workflow.generate_information()
+    print("--------------------------------")
     print(workflow.data)
 
 
