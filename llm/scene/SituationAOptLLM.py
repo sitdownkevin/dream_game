@@ -6,12 +6,13 @@ from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 from langchain_core.runnables import Runnable
 
 import asyncio
+import os
 from .SituationALLM import SituationALLM
 
 
 # --- Configuration Constants ---
-DEFAULT_OPENAI_MODEL_NAME = "deepseek-ai/DeepSeek-V3"
-DEFAULT_OPENAI_TEMPERATURE = 0.3
+DEFAULT_OPENAI_MODEL_NAME = os.getenv("OPENAI_MODEL_NAME", "deepseek-ai/DeepSeek-V3")
+DEFAULT_OPENAI_TEMPERATURE = float(os.getenv("DEFAULT_OPENAI_TEMPERATURE", 0.3))
 
 
 class SituationAOptLLM:
@@ -28,10 +29,10 @@ class SituationAOptLLM:
     
     def get_output_parser(self):
         response_schemas = [
-            ResponseSchema(name="a", description="One sentence description of the choice a"),
-            ResponseSchema(name="b", description="One sentence description of the choice b"),
-            ResponseSchema(name="c", description="One sentence description of the choice c"),
-            ResponseSchema(name="d", description="One sentence description of the choice d"),
+            ResponseSchema(name="CHOICE_A", description="One sentence description of the choice a"),
+            ResponseSchema(name="CHOICE_B", description="One sentence description of the choice b"),
+            ResponseSchema(name="CHOICE_C", description="One sentence description of the choice c"),
+            ResponseSchema(name="CHOICE_D", description="One sentence description of the choice d"),
         ]
         return StructuredOutputParser.from_response_schemas(response_schemas)
     
@@ -85,8 +86,9 @@ class SituationAOptLLM:
         1. 使魔对话选项（促进真实愿望/条件）
         2. 基于灵魂(`soul`)、主题(`theme`)、背景(`background`)、人物设定(`character`)、达成真实愿望的条件(`condition_true`)、达成虚假愿望的条件(`condition_fake`)，生成使魔的对话选项。
         3. 基于当前情境(`current_situation_description`)，生成使魔的对话选项。
-        4. 使用中文回答。
-        5. Return the result in the format of `format_instructions`.
+        4. 生成4个选项，每个选项是一个句子。
+        5. 使用中文回答。
+        6. Return the result in the format of `format_instructions`.
         </constraints>
         """
         
