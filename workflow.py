@@ -168,7 +168,7 @@ class Workflow:
             condition_true=self.condition_true,
             condition_fake=self.condition_fake,
         )
-        self.situation = situation_result['description']
+        self.situation_a = situation_result['description']
         
         if self.verbose:
             print(f"情景 A: {situation_result}")

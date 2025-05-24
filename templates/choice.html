@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block title %}情景 {{ stage }} - 做出你的选择{% endblock %}
+
+{% block content %}
+<div class="choice-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="choice-content">
+                    <!-- 进度指示器 -->
+                    <div class="progress-indicator mb-4">
+                        <div class="step-indicator">
+                            <div class="step {% if stage == 'A' %}active{% else %}completed{% endif %}">
+                                <span>1</span>
+                            </div>
+                            <div class="step-line {% if stage != 'A' %}completed{% endif %}"></div>
+                            <div class="step {% if stage == 'B' %}active{% elif stage == 'C' %}completed{% endif %}">
+                                <span>2</span>
+                            </div>
+                            <div class="step-line {% if stage == 'C' %}completed{% endif %}"></div>
+                            <div class="step {% if stage == 'C' %}active{% endif %}">
+                                <span>3</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 章节标题 -->
+                    <div class="chapter-header text-center mb-4">
+                        <h2 class="chapter-title">
+                            <i class="fas fa-book-open me-2"></i>
+                            第 {{ stage }} 章
+                        </h2>
+                    </div>
+                    
+                    <!-- 情景描述 -->
+                    <div class="situation-card mb-4">
+                        <div class="card border-0 shadow-lg">
+                            <div class="card-body p-4">
+                                <div class="situation-content">
+                                    <div class="situation-icon mb-3">
+                                        <i class="fas fa-scroll"></i>
+                                    </div>
+                                    <div class="situation-text">
+                                        {{ situation|safe }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 选项 -->
+                    <div class="choices-container">
+                        <h4 class="choices-title mb-3">
+                            <i class="fas fa-crossroads me-2"></i>
+                            你会如何选择？
+                        </h4>
+                        
+                        {% if options %}
+                        <div class="row">
+                            {% for key, option in options.items() %}
+                            <div class="col-lg-4 mb-3">
+                                <div class="choice-card" data-choice="{{ key }}">
+                                    <div class="card h-100 choice-option border-0 shadow">
+                                        <div class="card-body d-flex flex-column">
+                                            <div class="choice-header mb-3">
+                                                <div class="choice-letter">
+                                                    {{ key.split('_')[1] }}
+                                                </div>
+                                            </div>
+                                            <div class="choice-content flex-grow-1">
+                                                <p class="choice-text">{{ option|safe }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            选项正在生成中，请稍候...
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="stars"></div>
+<div class="twinkling"></div>
+
+<!-- 确认选择模态框 -->
+<div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-question-circle me-2"></i>
+                    确认选择
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>你确定要选择这个选项吗？</p>
+                <div class="selected-choice-preview">
+                    <strong>你的选择：</strong>
+                    <div id="selected-choice-text" class="mt-2 p-3 bg-light rounded"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">再考虑一下</button>
+                <button type="button" class="btn btn-primary" id="confirm-choice">确认选择</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 处理中模态框 -->
+<div class="modal fade" id="processingModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body text-center py-4">
+                <div class="spinner-border text-primary mb-3" role="status">
+                    <span class="visually-hidden">处理中...</span>
+                </div>
+                <h5>正在处理你的选择...</h5>
+                <p class="text-muted">AI正在根据你的决定生成后续情节</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const socket = io();
+    let selectedChoice = null;
+    let selectedChoiceText = null;
+    
+    // 选择选项
+    document.querySelectorAll('.choice-card').forEach(card => {
+        card.addEventListener('click', function() {
+            // 移除其他选中状态
+            document.querySelectorAll('.choice-card').forEach(c => c.classList.remove('selected'));
+            
+            // 添加选中状态
+            this.classList.add('selected');
+            
+            selectedChoice = this.dataset.choice;
+            selectedChoiceText = this.querySelector('.choice-text').textContent;
+            
+            // 显示确认模态框
+            document.getElementById('selected-choice-text').textContent = selectedChoiceText;
+            new bootstrap.Modal(document.getElementById('confirmModal')).show();
+        });
+    });
+    
+    // 确认选择
+    document.getElementById('confirm-choice').addEventListener('click', function() {
+        if (!selectedChoice) return;
+        
+        // 隐藏确认模态框
+        bootstrap.Modal.getInstance(document.getElementById('confirmModal')).hide();
+        
+        // 显示处理中模态框
+        new bootstrap.Modal(document.getElementById('processingModal')).show();
+        
+        // 发送选择到服务器
+        fetch('/make_choice', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                choice: selectedChoice,
+                stage: '{{ stage }}'
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert('发生错误：' + data.error);
+                bootstrap.Modal.getInstance(document.getElementById('processingModal')).hide();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('网络错误，请重试');
+            bootstrap.Modal.getInstance(document.getElementById('processingModal')).hide();
+        });
+    });
+    
+    // 监听选择处理完成
+    socket.on('choice_processed', function(data) {
+        setTimeout(() => {
+            window.location.href = data.redirect;
+        }, 1000);
+    });
+    
+    // 监听错误
+    socket.on('error', function(data) {
+        alert('发生错误：' + data.message);
+        bootstrap.Modal.getInstance(document.getElementById('processingModal')).hide();
+    });
+</script>
+<script src="{{ url_for('static', filename='js/stars.js') }}"></script>
+{% endblock %} 

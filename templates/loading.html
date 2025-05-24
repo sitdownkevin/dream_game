@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}正在生成你的专属故事...{% endblock %}
+
+{% block content %}
+<div class="loading-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="loading-content text-center">
+                    <div class="loading-icon mb-4">
+                        <i class="fas fa-sparkles spinning"></i>
+                    </div>
+                    
+                    <h2 class="loading-title mb-3">正在编织你的故事...</h2>
+                    <p class="loading-subtitle mb-4" id="stage-text">准备开始</p>
+                    
+                    <div class="progress-container mb-4">
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                 role="progressbar" 
+                                 style="width: 0%" 
+                                 id="progress-bar">
+                            </div>
+                        </div>
+                        <div class="progress-text mt-2">
+                            <span id="progress-text">0%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="loading-tips">
+                        <p class="text-muted">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            <span id="tip-text">AI正在为你量身定制独特的故事情节...</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="stars"></div>
+<div class="twinkling"></div>
+
+<!-- 错误提示模态框 -->
+<div class="modal fade" id="errorModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                    出现错误
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="error-message">生成过程中出现了问题，请重试。</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="window.location.href='{{ url_for('index') }}'">
+                    返回首页
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const socket = io();
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    const stageText = document.getElementById('stage-text');
+    const tipText = document.getElementById('tip-text');
+    
+    const tips = [
+        "每个故事都有其独特的灵魂...",
+        "背景设定决定了故事的基调...",
+        "角色的性格将影响整个冒险...",
+        "梦境与现实的边界正在模糊...",
+        "你的选择将塑造不同的命运..."
+    ];
+    
+    let tipIndex = 0;
+    
+    // 定期更换提示文本
+    setInterval(() => {
+        tipText.textContent = tips[tipIndex];
+        tipIndex = (tipIndex + 1) % tips.length;
+    }, 3000);
+    
+    // 监听进度更新
+    socket.on('progress_update', function(data) {
+        const progress = data.progress;
+        const stage = data.stage;
+        
+        progressBar.style.width = progress + '%';
+        progressText.textContent = progress + '%';
+        stageText.textContent = stage;
+    });
+    
+    // 监听生成完成
+    socket.on('generation_complete', function(data) {
+        setTimeout(() => {
+            window.location.href = data.redirect;
+        }, 1000);
+    });
+    
+    // 监听错误
+    socket.on('error', function(data) {
+        document.getElementById('error-message').textContent = data.message;
+        new bootstrap.Modal(document.getElementById('errorModal')).show();
+    });
+    
+    // 页面加载完成后开始生成
+    document.addEventListener('DOMContentLoaded', function() {
+        socket.emit('start_generation');
+    });
+</script>
+<script src="{{ url_for('static', filename='js/stars.js') }}"></script>
+{% endblock %} 

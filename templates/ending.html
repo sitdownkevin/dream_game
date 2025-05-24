@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}故事的终章{% endblock %}
+
+{% block content %}
+<div class="ending-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="ending-content">
+                    <!-- 完成指示器 -->
+                    <div class="completion-indicator text-center mb-4">
+                        <div class="completion-icon mb-3">
+                            <i class="fas fa-crown"></i>
+                        </div>
+                        <h1 class="completion-title">故事完成！</h1>
+                        <p class="completion-subtitle">你已经完成了这段奇妙的梦境之旅</p>
+                    </div>
+                    
+                    <!-- 结局内容 -->
+                    <div class="ending-card mb-4">
+                        <div class="card border-0 shadow-lg">
+                            <div class="card-header bg-primary text-white">
+                                <h3 class="card-title mb-0">
+                                    <i class="fas fa-star me-2"></i>
+                                    故事的结局
+                                </h3>
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="ending-text">
+                                    {{ data.ending|safe }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 故事回顾 -->
+                    <div class="story-review mb-4">
+                        <h3 class="review-title mb-3">
+                            <i class="fas fa-book me-2"></i>
+                            你的冒险历程
+                        </h3>
+                        
+                        <div class="accordion" id="storyAccordion">
+                            <!-- 角色信息 -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#character">
+                                        <i class="fas fa-user me-2"></i>角色设定
+                                    </button>
+                                </h2>
+                                <div id="character" class="accordion-collapse collapse show" data-bs-parent="#storyAccordion">
+                                    <div class="accordion-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <strong>主题：</strong>
+                                                <p>{{ data.theme }}</p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <strong>灵魂：</strong>
+                                                <p>{{ data.soul }}</p>
+                                            </div>
+                                        </div>
+                                        <strong>背景故事：</strong>
+                                        <p>{{ data.background }}</p>
+                                        <strong>角色信息：</strong>
+                                        <div class="character-info">
+                                            <p><strong>名字：</strong>{{ data.character.name }}</p>
+                                            <p><strong>年龄：</strong>{{ data.character.age }}</p>
+                                            <p><strong>角色：</strong>{{ data.character.role }}</p>
+                                            <p><strong>描述：</strong>{{ data.character.description }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 第一章 -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#chapter1">
+                                        <i class="fas fa-bookmark me-2"></i>第一章
+                                    </button>
+                                </h2>
+                                <div id="chapter1" class="accordion-collapse collapse" data-bs-parent="#storyAccordion">
+                                    <div class="accordion-body">
+                                        <div class="chapter-content">
+                                            <h6>情景描述：</h6>
+                                            <p>{{ data.situation_a }}</p>
+                                            <h6>你的选择：</h6>
+                                            <p class="choice-highlight">{{ data.situation_a_options_choice }}</p>
+                                            <h6>结果：</h6>
+                                            <p>{{ data.situation_a_result }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 第二章 -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#chapter2">
+                                        <i class="fas fa-bookmark me-2"></i>第二章
+                                    </button>
+                                </h2>
+                                <div id="chapter2" class="accordion-collapse collapse" data-bs-parent="#storyAccordion">
+                                    <div class="accordion-body">
+                                        <div class="chapter-content">
+                                            <h6>情景描述：</h6>
+                                            <p>{{ data.situation_b }}</p>
+                                            <h6>你的选择：</h6>
+                                            <p class="choice-highlight">{{ data.situation_b_options_choice }}</p>
+                                            <h6>结果：</h6>
+                                            <p>{{ data.situation_b_result }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 第三章 -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#chapter3">
+                                        <i class="fas fa-bookmark me-2"></i>第三章
+                                    </button>
+                                </h2>
+                                <div id="chapter3" class="accordion-collapse collapse" data-bs-parent="#storyAccordion">
+                                    <div class="accordion-body">
+                                        <div class="chapter-content">
+                                            <h6>情景描述：</h6>
+                                            <p>{{ data.situation_c }}</p>
+                                            <h6>你的选择：</h6>
+                                            <p class="choice-highlight">{{ data.situation_c_options_choice }}</p>
+                                            <h6>结果：</h6>
+                                            <p>{{ data.situation_c_result }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 操作按钮 -->
+                    <div class="ending-actions text-center">
+                        <a href="{{ url_for('restart_game') }}" class="btn btn-primary btn-lg me-3">
+                            <i class="fas fa-play me-2"></i>再次冒险
+                        </a>
+                        <button class="btn btn-outline-secondary btn-lg" onclick="window.print()">
+                            <i class="fas fa-download me-2"></i>保存故事
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="stars"></div>
+<div class="twinkling"></div>
+
+<!-- 成就动画 -->
+<div class="achievement-animation" id="achievement">
+    <div class="achievement-content">
+        <i class="fas fa-trophy"></i>
+        <h4>冒险完成！</h4>
+        <p>你已经成功完成了这个故事</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // 页面加载时显示成就动画
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(() => {
+            document.getElementById('achievement').classList.add('show');
+        }, 500);
+        
+        setTimeout(() => {
+            document.getElementById('achievement').classList.remove('show');
+        }, 3500);
+    });
+    
+    // 分享功能
+    function shareStory() {
+        if (navigator.share) {
+            navigator.share({
+                title: '我刚完成了一个精彩的梦境之旅！',
+                text: '快来体验这个AI生成的互动故事游戏！',
+                url: window.location.origin
+            });
+        } else {
+            // 复制链接到剪贴板
+            navigator.clipboard.writeText(window.location.origin);
+            alert('链接已复制到剪贴板！');
+        }
+    }
+    
+    // 平滑滚动
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+</script>
+<script src="{{ url_for('static', filename='js/stars.js') }}"></script>
+{% endblock %} 

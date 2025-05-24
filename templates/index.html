@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}梦境之旅 - 开始你的冒险{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <div class="hero-content">
+                    <div class="hero-icon mb-4">
+                        <i class="fas fa-moon"></i>
+                    </div>
+                    <h1 class="hero-title mb-4">梦境之旅</h1>
+                    <p class="hero-subtitle mb-5">
+                        踏入神秘的梦境世界，体验一段充满选择与挑战的互动故事。
+                        每一个决定都将影响你的命运，每一次选择都可能改变结局。
+                    </p>
+                    
+                    <div class="hero-features mb-5">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="feature-card">
+                                    <i class="fas fa-magic"></i>
+                                    <h5>AI 生成故事</h5>
+                                    <p>每次游戏都是独特的冒险</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="feature-card">
+                                    <i class="fas fa-crossroads"></i>
+                                    <h5>多重选择</h5>
+                                    <p>你的决定决定故事走向</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="feature-card">
+                                    <i class="fas fa-heart"></i>
+                                    <h5>沉浸体验</h5>
+                                    <p>精心设计的互动体验</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <a href="{{ url_for('start_game') }}" class="btn btn-primary btn-lg start-btn">
+                        <i class="fas fa-play me-2"></i>开始冒险
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="stars"></div>
+<div class="twinkling"></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/stars.js') }}"></script>
+{% endblock %} 
