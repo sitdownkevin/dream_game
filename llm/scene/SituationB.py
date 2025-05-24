@@ -4,7 +4,6 @@ from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 from langchain_core.runnables import Runnable
-
 import asyncio
 import os
 
@@ -15,7 +14,9 @@ DEFAULT_OPENAI_TEMPERATURE = float(os.getenv("DEFAULT_OPENAI_TEMPERATURE", 0.3))
 
 
 class SituationBLLM:
-    def __init__(self):
+    def __init__(self, system_prompt: str = None):
+        self.system_prompt = system_prompt
+        
         self.llm = self.get_llm()
         self.output_parser = self.get_output_parser()
         self.prompt = self.get_prompt()
@@ -32,22 +33,22 @@ class SituationBLLM:
     
     def get_prompt(self):
         prompt_template = """
-        <format_instructions>
-        {format_instructions}
-        </format_instructions>
+        <system>{system_prompt}</system>
         
-        <game_information>
-            <theme>{theme}</theme>
-            <background>{background}</background>
-            <soul>{soul}</soul>
-            <character>{character}</character>
-            <dream_true>{dream_true}</dream_true>
-            <dream_fake>{dream_fake}</dream_fake>
-            <condition_true>{condition_true}</condition_true>
-            <condition_fake>{condition_fake}</condition_fake>
-            <prev_situation_description>{prev_situation_description}</prev_situation_description>
-            <prev_situation_options_choice>{prev_situation_options_choice}</prev_situation_options_choice>
-            <prev_situation_result>{prev_situation_result}</prev_situation_result>
+        <format_instructions>{format_instructions}</format_instructions>
+        
+        <game_information description="游戏信息">
+            <theme description="游戏主题">{theme}</theme>
+            <background description="游戏背景">{background}</background>
+            <soul description="游戏主角的灵魂">{soul}</soul>
+            <character description="游戏主角的设定">{character}</character>
+            <dream_true description="游戏主角的真实愿望">{dream_true}</dream_true>
+            <dream_fake description="游戏主角的虚假愿望">{dream_fake}</dream_fake>
+            <condition_true description="游戏主角达成真实愿望的条件">{condition_true}</condition_true>
+            <condition_fake description="游戏主角达成虚假愿望的条件">{condition_fake}</condition_fake>
+            <prev_situation_description description="前一情境">{prev_situation_description}</prev_situation_description>
+            <prev_situation_options_choice description="前一情境的选项">{prev_situation_options_choice}</prev_situation_options_choice>
+            <prev_situation_result description="前一情境的结果">{prev_situation_result}</prev_situation_result>
         </game_information>
 
         <task>
@@ -56,8 +57,8 @@ class SituationBLLM:
         </task>
 
         <constraints>
-        1. 使用中文回答.
-        2. 基于游戏信息(`game_information`)中的所有信息.
+        1. Use Chinese to answer.
+        2. Based on the information in `game_information`.
         3. Return the result in the format of `format_instructions`.
         </constraints>
         """
@@ -65,7 +66,10 @@ class SituationBLLM:
         return PromptTemplate(
             template=prompt_template,
             input_variables=["theme", "background", "soul", "character", "dream_true", "dream_fake", "condition_true", "condition_fake", "prev_situation_description", "prev_situation_options_choice", "prev_situation_result"],
-            partial_variables={"format_instructions": self.output_parser.get_format_instructions()},
+            partial_variables={
+                "format_instructions": self.output_parser.get_format_instructions(),
+                "system_prompt": self.system_prompt,
+            },
             validate_template=False
         )
         

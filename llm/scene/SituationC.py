@@ -15,7 +15,9 @@ DEFAULT_OPENAI_TEMPERATURE = float(os.getenv("DEFAULT_OPENAI_TEMPERATURE", 0.3))
 
 
 class SituationCLLM:
-    def __init__(self):
+    def __init__(self, system_prompt: str = None):
+        self.system_prompt = system_prompt
+        
         self.llm = self.get_llm()
         self.output_parser = self.get_output_parser()
         self.prompt = self.get_prompt()
@@ -32,9 +34,9 @@ class SituationCLLM:
     
     def get_prompt(self):
         prompt_template = """
-        <format_instructions>
-        {format_instructions}
-        </format_instructions>
+        <system>{system_prompt}</system>
+        
+        <format_instructions>{format_instructions}</format_instructions>
         
         <game_information>
             <theme>{theme}</theme>
@@ -56,8 +58,8 @@ class SituationCLLM:
         </task>
 
         <constraints>
-        1. 使用中文回答.
-        2. 基于游戏信息(`game_information`)中的所有信息.
+        1. Use Chinese to answer.
+        2. Based on the information in `game_information`.
         3. Return the result in the format of `format_instructions`.
         </constraints>
         """
@@ -65,7 +67,10 @@ class SituationCLLM:
         return PromptTemplate(
             template=prompt_template,
             input_variables=["theme", "background", "soul", "character", "dream_true", "dream_fake", "condition_true", "condition_fake", "prev_situation_description", "prev_situation_options_choice", "prev_situation_result"],
-            partial_variables={"format_instructions": self.output_parser.get_format_instructions()},
+            partial_variables={
+                "format_instructions": self.output_parser.get_format_instructions(),
+                "system_prompt": self.system_prompt,
+            },
             validate_template=False
         )
         

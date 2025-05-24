@@ -15,7 +15,9 @@ DEFAULT_OPENAI_TEMPERATURE = float(os.getenv("DEFAULT_OPENAI_TEMPERATURE", 0.3))
 
 
 class BackgroundLLM:
-    def __init__(self):
+    def __init__(self, system_prompt: str = None):
+        self.system_prompt = system_prompt
+        
         self.llm = self.get_llm()
         self.output_parser = self.get_output_parser()
         self.prompt = self.get_prompt()
@@ -26,31 +28,37 @@ class BackgroundLLM:
     
     def get_output_parser(self):
         response_schemas = [
-            ResponseSchema(name="background", description="One sentence that describes the background of the game")
+            ResponseSchema(name="background", description="Paragraph that describes the background of the game", type="string")
         ]
         return StructuredOutputParser.from_response_schemas(response_schemas)
     
     def get_prompt(self):
         prompt_template = """
-        <format_instructions>
-        {format_instructions}
-        </format_instructions>
+        <system>{system_prompt}</system>
+        
+        <format_instructions>{format_instructions}</format_instructions>
 
         <task>
-        用一句话描述一个{theme}主题游戏中的背景设定，不能出现现实里的事物，需要有简洁但出人意料的夸张点。
+        游戏的主题是: {theme}. 根据游戏主题描述一个背景设定.
         </task>
 
         <constraints>
-        1. 只需包含地点，不要有任何额外叙述。
-        2. 使用中文回答。
-        3. Return the result in the format of `format_instructions`.
+        1. 描述需要包含地点.
+        2. 描述需要简洁.
+        3. 需要有出人意料的夸张点.
+        4. 不能出现现实里的事物.
+        5. Use Chinese to answer.
+        6. Return the result in the format of `format_instructions`.
         </constraints>
         """
         
         return PromptTemplate(
             template=prompt_template,
             input_variables=["theme"],
-            partial_variables={"format_instructions": self.output_parser.get_format_instructions()},
+            partial_variables={
+                "format_instructions": self.output_parser.get_format_instructions(),
+                "system_prompt": self.system_prompt,
+            },
             validate_template=False
         )
         

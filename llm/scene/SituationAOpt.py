@@ -11,14 +11,15 @@ import sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from llm.scene.SituationA import SituationALLM
 
-
 # --- Configuration Constants ---
 DEFAULT_OPENAI_MODEL_NAME = os.getenv("OPENAI_MODEL_NAME", "deepseek-ai/DeepSeek-V3")
 DEFAULT_OPENAI_TEMPERATURE = float(os.getenv("DEFAULT_OPENAI_TEMPERATURE", 0.3))
 
 
 class SituationAOptLLM:
-    def __init__(self):
+    def __init__(self, system_prompt: str = None):
+        self.system_prompt = system_prompt
+        
         self.llm = self.get_llm()
         self.output_parser = self.get_output_parser()
         self.prompt = self.get_prompt()
@@ -39,45 +40,21 @@ class SituationAOptLLM:
     
     def get_prompt(self):
         prompt_template = """
-        <format_instructions>
-        {format_instructions}
-        </format_instructions>
+        <system>{system_prompt}</system>
         
-        <soul>
-        {soul}
-        </soul>
+        <format_instructions>{format_instructions}</format_instructions>
         
-        <theme>
-        {theme}
-        </theme>
-        
-        <background>
-        {background}
-        </background>
-        
-        <character>
-        {character}
-        </character>
-        
-        <dream_true>
-        {dream_true}
-        </dream_true>
-        
-        <dream_fake>
-        {dream_fake}
-        </dream_fake>
-        
-        <condition_true>
-        {condition_true}
-        </condition_true>
-        
-        <condition_fake>
-        {condition_fake}
-        </condition_fake>
-        
-        <current_situation_description>
-        {current_situation_description}
-        </current_situation_description>
+        <game_information description="游戏信息">
+            <soul description="游戏主角的灵魂">{soul}</soul>
+            <theme description="游戏主题">{theme}</theme>
+            <background description="游戏背景">{background}</background>
+            <character description="游戏主角">{character}</character>
+            <dream_true description="游戏主角的真实愿望">{dream_true}</dream_true>
+            <dream_fake description="游戏主角的虚假愿望">{dream_fake}</dream_fake>
+            <condition_true description="游戏主角达成真实愿望的条件">{condition_true}</condition_true>
+            <condition_fake description="游戏主角达成虚假愿望的条件">{condition_fake}</condition_fake>
+            <current_situation_description description="当前情境">{current_situation_description}</current_situation_description>
+        </game_information>
 
         <task>
         在主角与使魔相遇的情境中，生成使魔的对话选项。
@@ -99,7 +76,10 @@ class SituationAOptLLM:
         return PromptTemplate(
             template=prompt_template,
             input_variables=["soul", "theme", "background", "character", "dream_true", "dream_fake", "condition_true", "condition_fake", "current_situation_description"],
-            partial_variables={"format_instructions": self.output_parser.get_format_instructions()},
+            partial_variables={
+                "format_instructions": self.output_parser.get_format_instructions(),
+                "system_prompt": self.system_prompt,
+            },
             validate_template=False
         )
 

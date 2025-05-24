@@ -13,6 +13,7 @@ from llm.scene.SituationBResult import SituationBResultLLM
 from llm.scene.SituationC import SituationCLLM
 from llm.scene.SituationCOpt import SituationCOptLLM
 from llm.scene.SituationCResult import SituationCResultLLM
+from llm.story.Ending import EndingLLM
 
 import asyncio
 import random
@@ -27,7 +28,8 @@ class Workflow:
         self.charac_llm = CharacLLM()
         self.background_llm = BackgroundLLM()
         self.dream_llm = DreamLLM()
-        self.condition_llm = ConditionLLM()
+        self.condition_llm_true = ConditionLLM(type='TRUE')
+        self.condition_llm_fake = ConditionLLM(type='FAKE')
         self.theme_llm = ThemeLLM()
         self.soul_llm = SoulLLM()
         self.situation_a_llm = SituationALLM()
@@ -39,6 +41,7 @@ class Workflow:
         self.situation_c_llm = SituationCLLM()
         self.situation_c_opt_llm = SituationCOptLLM()
         self.situation_c_result_llm = SituationCResultLLM()
+        self.ending_llm = EndingLLM(type="NORMAL")
         # 存储各种生成的数据
         self.soul = None
         self.theme = None
@@ -60,6 +63,7 @@ class Workflow:
         self.situation_c_options = None
         self.situation_c_options_choice = None
         self.situation_c_result = None
+        self.ending = None
 
     async def generate_soul_and_theme(self):
         """并行生成灵魂和主题"""
@@ -102,7 +106,7 @@ class Workflow:
         """生成真实和虚假梦境"""
         print("生成真实梦境...")
         dream_true_result = await self.dream_llm.arun(
-            type='true', 
+            type='TRUE', 
             theme=self.theme, 
             background=self.background, 
             character=self.character
@@ -114,7 +118,7 @@ class Workflow:
 
         print("生成虚假梦境...")
         dream_fake_result = await self.dream_llm.arun(
-            type='fake', 
+            type='FAKE', 
             theme=self.theme, 
             background=self.background, 
             character=self.character, 
@@ -129,15 +133,13 @@ class Workflow:
         """并行生成真实和虚假条件"""
         print("生成条件...")
         tasks = [
-            self.condition_llm.arun(
-                type='true', 
+            self.condition_llm_true.arun(
                 theme=self.theme, 
                 background=self.background, 
                 character=self.character, 
                 dream=self.dream_true
             ),
-            self.condition_llm.arun(
-                type='fake', 
+            self.condition_llm_fake.arun(
                 theme=self.theme, 
                 background=self.background, 
                 character=self.character, 
@@ -362,6 +364,30 @@ class Workflow:
         if self.verbose:
             print(f"情景 C 结果: {self.situation_c_result}")
 
+    async def generate_ending(self):
+        """生成结局"""
+        print("生成结局...")
+        ending_result = await self.ending_llm.arun(
+            soul=self.soul,
+            character=self.character,
+            dream_true=self.dream_true,
+            dream_fake=self.dream_fake,
+            condition_true=self.condition_true,
+            condition_fake=self.condition_fake,
+            situation_a_description=self.situation_a,
+            situation_a_options_choice=self.situation_a_options_choice,
+            situation_a_result=self.situation_a_result,
+            situation_b_description=self.situation_b,
+            situation_b_options_choice=self.situation_b_options_choice,
+            situation_b_result=self.situation_b_result,
+            situation_c_description=self.situation_c,
+            situation_c_options_choice=self.situation_c_options_choice,
+            situation_c_result=self.situation_c_result,
+        )
+        self.ending = ending_result['ending']
+        if self.verbose:
+            print(f"结局: {ending_result}")
+
     async def play(self):
         """执行完整的生成流程"""
         await self.generate_soul_and_theme()
@@ -381,6 +407,8 @@ class Workflow:
         await self.generate_situation_c()
         await self.generate_situation_c_options()
         await self.make_choice_for_situation_c(f'CHOICE_{random.choice(["A", "B", "C"])}')
+        
+        await self.generate_ending()
 
 
     def get_all_data(self):
@@ -402,6 +430,11 @@ class Workflow:
             'situation_b_options': self.situation_b_options,
             'situation_b_options_choice': self.situation_b_options_choice,
             'situation_b_result': self.situation_b_result,
+            'situation_c': self.situation_c,
+            'situation_c_options': self.situation_c_options,
+            'situation_c_options_choice': self.situation_c_options_choice,
+            'situation_c_result': self.situation_c_result,
+            'ending': self.ending,
         }
 
 

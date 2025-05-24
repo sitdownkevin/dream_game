@@ -15,7 +15,9 @@ DEFAULT_OPENAI_TEMPERATURE = float(os.getenv("DEFAULT_OPENAI_TEMPERATURE", 0.3))
 
 
 class SituationBResultLLM:
-    def __init__(self):
+    def __init__(self, system_prompt: str = None):
+        self.system_prompt = system_prompt
+        
         self.llm = self.get_llm()
         self.output_parser = self.get_output_parser()
         self.prompt = self.get_prompt()
@@ -32,6 +34,8 @@ class SituationBResultLLM:
     
     def get_prompt(self):
         prompt_template = """
+        <system>{system_prompt}</system>
+        
         <format_instructions>{format_instructions}</format_instructions>
 
         <task>
@@ -65,7 +69,10 @@ class SituationBResultLLM:
         return PromptTemplate(
             template=prompt_template,
             input_variables=["theme", "background", "soul", "character", "dream_true", "dream_fake", "condition_true", "condition_fake", "prev_situation_description", "prev_situation_options_choice", "prev_situation_result", "current_situation_description", "current_situation_options_choice"],
-            partial_variables={"format_instructions": self.output_parser.get_format_instructions()},
+            partial_variables={
+                "format_instructions": self.output_parser.get_format_instructions(),
+                "system_prompt": self.system_prompt,
+            },
             validate_template=False
         )
         

@@ -4,7 +4,6 @@ from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 from langchain_core.runnables import Runnable
-
 import asyncio
 import os
 
@@ -15,7 +14,9 @@ DEFAULT_OPENAI_TEMPERATURE = float(os.getenv("DEFAULT_OPENAI_TEMPERATURE", 0.3))
 
 
 class SituationCResultLLM:
-    def __init__(self):
+    def __init__(self, system_prompt: str = None):
+        self.system_prompt = system_prompt
+        
         self.llm = self.get_llm()
         self.output_parser = self.get_output_parser()
         self.prompt = self.get_prompt()
@@ -32,6 +33,8 @@ class SituationCResultLLM:
     
     def get_prompt(self):
         prompt_template = """
+        <system>{system_prompt}</system>
+        
         <format_instructions>{format_instructions}</format_instructions>
 
         <task>
@@ -56,8 +59,8 @@ class SituationCResultLLM:
         </game_information>
         
         <constraints>
-        1. 基于游戏信息(`game_information`)中的所有信息.
-        2. 使用中文回答。
+        1. Based on the information in `game_information`.
+        2. Use Chinese to answer.
         3. Return the result in the format of `format_instructions`.
         </constraints>
         """
@@ -65,7 +68,10 @@ class SituationCResultLLM:
         return PromptTemplate(
             template=prompt_template,
             input_variables=["theme", "background", "soul", "character", "dream_true", "dream_fake", "condition_true", "condition_fake", "prev_situation_description", "prev_situation_options_choice", "prev_situation_result", "current_situation_description", "current_situation_options_choice"],
-            partial_variables={"format_instructions": self.output_parser.get_format_instructions()},
+            partial_variables={
+                "format_instructions": self.output_parser.get_format_instructions(),
+                "system_prompt": self.system_prompt,
+            },
             validate_template=False
         )
         

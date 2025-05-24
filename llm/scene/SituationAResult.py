@@ -4,7 +4,6 @@ from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 from langchain_core.runnables import Runnable
-
 import asyncio
 import os
 
@@ -15,7 +14,9 @@ DEFAULT_OPENAI_TEMPERATURE = float(os.getenv("DEFAULT_OPENAI_TEMPERATURE", 0.3))
 
 
 class SituationAResultLLM:
-    def __init__(self):
+    def __init__(self, system_prompt: str = None):
+        self.system_prompt = system_prompt
+        
         self.llm = self.get_llm()
         self.output_parser = self.get_output_parser()
         self.prompt = self.get_prompt()
@@ -32,25 +33,27 @@ class SituationAResultLLM:
     
     def get_prompt(self):
         prompt_template = """
+        <system>{system_prompt}</system>
+        
         <format_instructions>{format_instructions}</format_instructions>
+
+        <game_information>
+            <theme description="游戏主题">{theme}</theme>
+            <background description="游戏背景">{background}</background>
+            <soul description="游戏主角的灵魂">{soul}</soul>
+            <character description="游戏主角的设定">{character}</character>
+            <dream_true description="游戏主角的真实愿望">{dream_true}</dream_true>
+            <dream_fake description="游戏主角的虚假愿望">{dream_fake}</dream_fake>
+            <condition_true description="游戏主角达成真实愿望的条件">{condition_true}</condition_true>
+            <condition_fake description="游戏主角达成虚假愿望的条件">{condition_fake}</condition_fake>
+            <current_situation_description description="当前情境">{current_situation_description}</current_situation_description>
+            <current_situation_options_choice description="当前情境的选项">{current_situation_options_choice}</current_situation_options_choice>
+        </game_information>
 
         <task>
         根据游戏信息(`game_information`)，描述主角选择了使魔的对话选项后的即时结果或后果。
         这个结果应该自然地由所选选项引出，并暗示其对主角实现愿望路径的影响。
         </task>
-        
-        <game_information>
-            <theme>{theme}</theme>
-            <background>{background}</background>
-            <soul>{soul}</soul>
-            <character>{character}</character>
-            <dream_true>{dream_true}</dream_true>
-            <dream_fake>{dream_fake}</dream_fake>
-            <condition_true>{condition_true}</condition_true>
-            <condition_fake>{condition_fake}</condition_fake>
-            <current_situation_description>{current_situation_description}</current_situation_description>
-            <current_situation_options_choice>{current_situation_options_choice}</current_situation_options_choice>
-        </game_information>
         
         <constraints>
         1. 主角设定必须符合基本人物特性。
@@ -63,7 +66,10 @@ class SituationAResultLLM:
         return PromptTemplate(
             template=prompt_template,
             input_variables=["theme", "background", "soul", "character", "dream_true", "dream_fake", "condition_true", "condition_fake", "current_situation_description", "current_situation_options_choice"],
-            partial_variables={"format_instructions": self.output_parser.get_format_instructions()},
+            partial_variables={
+                "format_instructions": self.output_parser.get_format_instructions(),
+                "system_prompt": self.system_prompt,
+            },
             validate_template=False
         )
         
