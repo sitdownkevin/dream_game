@@ -26,8 +26,7 @@ class BackgroundLLM:
     
     def get_output_parser(self):
         response_schemas = [
-            ResponseSchema(name="background", description="One sentence that describes the background of the game"),
-            ResponseSchema(name="theme", description="The theme of the game")
+            ResponseSchema(name="background", description="One sentence that describes the background of the game")
         ]
         return StructuredOutputParser.from_response_schemas(response_schemas)
     

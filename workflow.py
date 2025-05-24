@@ -7,8 +7,6 @@ from llm.role.SoulLLM import SoulLLM
 from llm.scene.SituationALLM import SituationALLM
 from llm.scene.SituationAOptLLM import SituationAOptLLM
 
-import sys
-import os
 import asyncio
 
 
