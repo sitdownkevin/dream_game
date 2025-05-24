@@ -133,13 +133,15 @@ class SituationALLM:
     
     async def aget_information(self):
         import sys, os
-        sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        from role.SoulLLM import SoulLLM
-        from story.ThemeLLM import ThemeLLM
-        from story.BackgroundLLM import BackgroundLLM
-        from role.CharacLLM import CharacLLM
-        from story.DreamLLM import DreamLLM
-        from llm.story.ConditionLLM import ConditionLLM
+        # Add the project root to the path
+        project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        sys.path.append(project_root)
+        from llm.role.Soul import SoulLLM
+        from llm.story.Theme import ThemeLLM
+        from llm.story.Background import BackgroundLLM
+        from llm.role.Charac import CharacLLM
+        from llm.story.Dream import DreamLLM
+        from llm.story.Condition import ConditionLLM
         
         print("Generating theme and soul...")
         theme_llm = ThemeLLM()

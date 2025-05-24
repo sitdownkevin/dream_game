@@ -1,14 +1,14 @@
 import streamlit as st
 import asyncio
 import json
-from llm.role.CharacLLM import CharacLLM
-from llm.story.BackgroundLLM import BackgroundLLM
-from llm.story.DreamLLM import DreamLLM
-from llm.story.ConditionLLM import ConditionLLM
-from llm.story.ThemeLLM import ThemeLLM
-from llm.role.SoulLLM import SoulLLM
-from llm.scene.SituationALLM import SituationALLM
-from llm.scene.SituationAOptLLM import SituationAOptLLM
+from llm.role.Charac import CharacLLM
+from llm.story.Background import BackgroundLLM
+from llm.story.Dream import DreamLLM
+from llm.story.Condition import ConditionLLM
+from llm.story.Theme import ThemeLLM
+from llm.role.Soul import SoulLLM
+from llm.scene.SituationA import SituationALLM
+from llm.scene.SituationAOpt import SituationAOptLLM
 
 
 def init_session_state():

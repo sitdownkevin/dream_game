@@ -7,7 +7,9 @@ from langchain_core.runnables import Runnable
 
 import asyncio
 import os
-from .SituationALLM import SituationALLM
+import sys
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from llm.scene.SituationA import SituationALLM
 
 
 # --- Configuration Constants ---
@@ -32,7 +34,6 @@ class SituationAOptLLM:
             ResponseSchema(name="CHOICE_A", description="One sentence description of the choice a"),
             ResponseSchema(name="CHOICE_B", description="One sentence description of the choice b"),
             ResponseSchema(name="CHOICE_C", description="One sentence description of the choice c"),
-            ResponseSchema(name="CHOICE_D", description="One sentence description of the choice d"),
         ]
         return StructuredOutputParser.from_response_schemas(response_schemas)
     
@@ -79,14 +80,17 @@ class SituationAOptLLM:
         </current_situation_description>
 
         <task>
-        在主角与使魔相遇的情境中，生成**使魔的对话选项**。这个选项如果被主角选择，将以微妙但明确的**方式推动主角走向他们的真实愿望**或真实条件的满足。这个选项应该涉及努力或风险，但承诺真正的满足感。
+        在主角与使魔相遇的情境中，生成使魔的对话选项。
+        1. CHOICE_A: 这个选项表面上听起来很有吸引力，但对真实愿望有潜在的微妙损害。
+        2. CHOICE_B: 这个选项应该涉及努力或风险，但承诺真正的满足感。
+        3. CHOICE_C: 它应该导致一个中立、分散注意力或复杂的支线事件，不能明确地推动任何一个条件的实现。
         </task>
 
         <constraints>
         1. 使魔对话选项（促进真实愿望/条件）
         2. 基于灵魂(`soul`)、主题(`theme`)、背景(`background`)、人物设定(`character`)、达成真实愿望的条件(`condition_true`)、达成虚假愿望的条件(`condition_fake`)，生成使魔的对话选项。
         3. 基于当前情境(`current_situation_description`)，生成使魔的对话选项。
-        4. 生成4个选项，每个选项是一个句子。
+        4. 使魔的对话选项应该以微妙但明确的方式推动主角走向他们的真实愿望或真实条件的满足。这个选项应该涉及努力或风险，但承诺真正的满足感。
         5. 使用中文回答。
         6. Return the result in the format of `format_instructions`.
         </constraints>
