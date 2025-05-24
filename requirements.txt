@@ -1,0 +1,12 @@
+# LangChain 相关包
+langchain>=0.1.0
+langchain-openai>=0.1.0
+langchain-core>=0.1.0
+
+# 环境变量管理
+python-dotenv>=1.0.0
+
+# 注释：以下包是 Python 标准库，无需安装
+# - asyncio (Python 3.4+)
+# - os (built-in)
+# - sys (built-in)
