@@ -49,15 +49,15 @@ class CharacLLM:
         <game_information description="游戏信息">
             <theme description="游戏主题">{theme}</theme>
             <background description="游戏背景">{background}</background>
-            <soul description="主角特性">{soul}</soul>
+            <soul description="NPC特性">{soul}</soul>
         </game_information>
         
         <task>
-        基于`game_information`中的信息，给出一个浮夸的主角设定.
+        基于`game_information`中的信息，给出一个浮夸的NPC设定.
         </task>
 
         <constraints>
-        1. 主角设定包括名字、年龄、角色、描述。
+        1. NPC设定包括名字、年龄、角色、描述。
         2. Use Chinese to answer.
         3. Return the result in the format of `format_instructions`.
         </constraints>

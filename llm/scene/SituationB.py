@@ -40,19 +40,19 @@ class SituationBLLM:
         <game_information description="游戏信息">
             <theme description="游戏主题">{theme}</theme>
             <background description="游戏背景">{background}</background>
-            <soul description="游戏主角的灵魂">{soul}</soul>
-            <character description="游戏主角的设定">{character}</character>
-            <dream_true description="游戏主角的真实愿望">{dream_true}</dream_true>
-            <dream_fake description="游戏主角的虚假愿望">{dream_fake}</dream_fake>
-            <condition_true description="游戏主角达成真实愿望的条件">{condition_true}</condition_true>
-            <condition_fake description="游戏主角达成虚假愿望的条件">{condition_fake}</condition_fake>
+            <soul description="游戏NPC的灵魂">{soul}</soul>
+            <character description="游戏NPC的设定">{character}</character>
+            <dream_true description="游戏NPC的真实愿望">{dream_true}</dream_true>
+            <dream_fake description="游戏NPC的表面愿望">{dream_fake}</dream_fake>
+            <condition_true description="游戏NPC达成真实愿望的条件">{condition_true}</condition_true>
+            <condition_fake description="游戏NPC达成表面愿望的条件">{condition_fake}</condition_fake>
             <prev_situation_description description="前一情境">{prev_situation_description}</prev_situation_description>
             <prev_situation_options_choice description="前一情境的选项">{prev_situation_options_choice}</prev_situation_options_choice>
             <prev_situation_result description="前一情境的结果">{prev_situation_result}</prev_situation_result>
         </game_information>
 
         <task>
-        基于游戏信息(`game_information`)，描述主角与一位希望帮助他们的友人角色互动的场景。
+        基于游戏信息(`game_information`)，描述NPC与一位希望帮助他们的友人角色互动的场景。
         这位友人提供了一些建议或帮助。使魔在一旁观察，思考如何应对。
         </task>
 
@@ -128,9 +128,9 @@ async def main():
         dream_fake="想要实现一个能够改变世界的愿望",
         condition_true="想要实现一个能够改变世界的愿望",
         condition_fake="想要实现一个能够改变世界的愿望",
-        prev_situation_description="主角在游戏中遇到了一个使魔，使魔告诉主角一个实现愿望的方法",
+        prev_situation_description="NPC在游戏中遇到了一个使魔，使魔告诉NPC一个实现愿望的方法",
         prev_situation_options_choice="尽管这条路充满挑战，但唯有如此你才能真正打破孤独，拥抱时间的和谐流转。",
-        prev_situation_result="主角选择了使魔的对话选项，使魔告诉主角一个实现愿望的方法",
+        prev_situation_result="NPC选择了使魔的对话选项，使魔告诉NPC一个实现愿望的方法",
     )
     print(result)
 

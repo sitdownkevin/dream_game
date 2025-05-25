@@ -103,7 +103,7 @@ class Workflow:
             print(f"角色: {character_result}")
 
     async def generate_dreams(self):
-        """生成真实和虚假梦境"""
+        """生成真实和表面梦境"""
         print("生成真实梦境...")
         dream_true_result = await self.dream_llm.arun(
             type='TRUE', 
@@ -116,7 +116,7 @@ class Workflow:
         if self.verbose:
             print(f"真实梦境: {dream_true_result}")
 
-        print("生成虚假梦境...")
+        print("生成表面梦境...")
         dream_fake_result = await self.dream_llm.arun(
             type='FAKE', 
             theme=self.theme, 
@@ -127,10 +127,10 @@ class Workflow:
         self.dream_fake = dream_fake_result['dream']
         
         if self.verbose:
-            print(f"虚假梦境: {dream_fake_result}")
+            print(f"表面梦境: {dream_fake_result}")
 
     async def generate_conditions(self):
-        """并行生成真实和虚假条件"""
+        """并行生成真实和表面条件"""
         print("生成条件...")
         tasks = [
             self.condition_llm_true.arun(
@@ -153,7 +153,7 @@ class Workflow:
         
         if self.verbose:
             print(f"真实条件: {condition_true_result}")
-            print(f"虚假条件: {condition_fake_result}")
+            print(f"表面条件: {condition_fake_result}")
 
     async def generate_situation(self):
         """生成情景 A 描述"""

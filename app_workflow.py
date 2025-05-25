@@ -102,7 +102,7 @@ async def generate_dreams():
         )
         st.session_state.dream_true = dream_true
     
-    with st.spinner("正在生成虚假梦境..."):
+    with st.spinner("正在生成表面梦境..."):
         dream_fake = await dream_llm.arun(
             type='FAKE',
             theme=st.session_state.theme,
@@ -512,7 +512,7 @@ def main():
     with col1:
         display_json_content(st.session_state.dream_true, "真实梦境")
     with col2:
-        display_json_content(st.session_state.dream_fake, "虚假梦境")
+        display_json_content(st.session_state.dream_fake, "表面梦境")
     
     st.markdown("---")
     
@@ -537,7 +537,7 @@ def main():
     with col1:
         display_json_content(st.session_state.condition_true, "真实条件")
     with col2:
-        display_json_content(st.session_state.condition_fake, "虚假条件")
+        display_json_content(st.session_state.condition_fake, "表面条件")
     
     st.markdown("---")
     

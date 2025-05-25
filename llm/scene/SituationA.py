@@ -45,28 +45,42 @@ class SituationALLM:
         
         <game_information description="游戏信息">
             <theme description="游戏主题">{theme}</theme>
-            <soul description="游戏主角的灵魂">{soul}</soul>
+            <soul description="游戏NPC的灵魂">{soul}</soul>
             <background description="游戏背景">{background}</background>
-            <character description="游戏主角">{character}</character>
-            <dream_true description="游戏主角的真实愿望">{dream_true}</dream_true>
-            <dream_fake description="游戏主角的虚假愿望">{dream_fake}</dream_fake>
-            <condition_true description="游戏主角达成真实愿望的条件">{condition_true}</condition_true>
-            <condition_fake description="游戏主角达成虚假愿望的条件">{condition_fake}</condition_fake>
+            <character description="游戏NPC">{character}</character>
+            <dream_true description="游戏NPC的真实愿望">{dream_true}</dream_true>
+            <dream_fake description="游戏NPC的表面愿望">{dream_fake}</dream_fake>
+            <condition_true description="游戏NPC达成真实愿望的条件">{condition_true}</condition_true>
+            <condition_fake description="游戏NPC达成表面愿望的条件">{condition_fake}</condition_fake>
         </game_information>
-        
- 
+
+
         <task>
-        描述主角与一个神秘使魔首次相遇的情境。使魔的出现应该与主角的愿望和背景有微妙的联系，暗示一个潜在的转折点。
+        通过Player (使魔)视角，展开描述NPC与一个神秘使魔首次相遇的情境。开篇应该描述Player (使魔)的醒来 (例如：从黑暗中醒来，映入眼帘的是...)，其后NPC基于自身动机和Player (使魔)展开对话。
+        NPC的动机：想要让Player (使魔)帮助自己实现愿望，向Player (使魔)描述自己知道的现状后，询问Player (使魔)的见解。
         </task>
+
+        <example>
+        从黑暗中醒来，映入眼帘的是一幅奇幻的景象。
+        巨大到无法想象的水晶洞窟中，四处都映射着七彩的光芒，眼前出现了一位少女，带着疑惑的神情。
+        ”你就是使魔吗？真是不可思议，看上去普普通通，凭空出现在这里。“少女向我伸出手，将我从地上拉起。
+        “我说，你能实现我的愿望，对吧？”她望着我，急切地开口。“现在，我希望采集一种罕见的材料，但在这个洞窟里迷路了，你能不能帮我一把，带我离开这里？”
+        ...
+        </example>
  
-        <background>
-        "公主魔法"设定: 无条件让人物获得召唤男使魔的能力。据说他能够超越时空，帮召唤者实现愿望。然而，并没有可靠的依据。
-        </background>
+        <current_situation_background>
+        NPC无意间触发了魔法，将player (使魔)召唤到她的世界，希望player能实现她的愿望。
+        "魔法"设定: 无条件让人物获得召唤男使魔的能力。据说他能够超越时空，帮召唤者实现愿望。然而，并没有可靠的依据。
+        </current_situation_background>
 
         <constraints>
-        1. 基于主题(`theme`)、背景(`background`)、人物设定(`character`)、达成真实愿望的条件(`condition_true`)、达成虚假愿望的条件(`condition_fake`)，描述主角与一个神秘使魔首次相遇的情境。
-        2. 使用中文回答。
-        3. Return the result in the format of `format_instructions`.
+        1. NPC绝对不能说出愿望，只能说出她计划做什么.
+        2. 不能照抄`example`，但必须学习风格.
+        2. 使用有限全知视角描述故事.
+        3. 至少生成500字.
+        4. 基于主题(`theme`)、背景(`background`)、人物设定(`character`)、达成真实愿望的条件(`condition_true`)、达成表面愿望的条件(`condition_fake`)，描述NPC与一个神秘使魔首次相遇的情境。
+        5. 使用中文回答。
+        6. Return the result in the format of `format_instructions`.
         </constraints>
         """
         
@@ -116,105 +130,20 @@ class SituationALLM:
         except Exception as e:
             print(f"Error: {e}")
             return None
-        
-    
-    async def aget_information(self):
-        import sys, os
-        # Add the project root to the path
-        project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        sys.path.append(project_root)
-        from llm.role.Soul import SoulLLM
-        from llm.story.Theme import ThemeLLM
-        from llm.story.Background import BackgroundLLM
-        from llm.role.Charac import CharacLLM
-        from llm.story.Dream import DreamLLM
-        from llm.story.Condition import ConditionLLM
-        
-        print("Generating theme and soul...")
-        theme_llm = ThemeLLM()
-        soul_llm = SoulLLM()
-        tasks = [
-            theme_llm.arun(),
-            soul_llm.arun(),
-        ]
-        data = await asyncio.gather(*tasks)
-        theme, soul = data
-        if self.verbose:
-            print(theme)
-            print(soul)
-
-        print("Generating background...")
-        background_llm = BackgroundLLM()
-        background = await background_llm.arun(theme=theme)
-        if self.verbose:
-            print(background)
-        
-        print("Generating character...")
-        character_llm = CharacLLM()
-        character = await character_llm.arun(theme=theme, background=background)
-        if self.verbose:
-            print(character)
-        
-        print("Generating dream...")
-        dream_llm = DreamLLM()
-        dream_true = await dream_llm.arun(type='true', theme=theme, background=background, character=character)
-        if self.verbose:
-            print(dream_true)
-        dream_fake = await dream_llm.arun(type='fake', theme=theme, background=background, character=character, dream_true=dream_true)
-        if self.verbose:
-            print(dream_fake)
-        
-        print("Generating condition...")
-        condition_llm = ConditionLLM()
-        condition_true = await condition_llm.arun(type='true', theme=theme, background=background, character=character, dream=dream_true)
-        if self.verbose:
-            print(condition_true)
-        condition_fake = await condition_llm.arun(type='fake', theme=theme, background=background, character=character, dream=dream_fake)
-        if self.verbose:
-            print(condition_fake)
-            
-        self.data = {
-            "theme": theme['theme'],
-            "soul": soul['soul'],
-            "background": background['background'],
-            "character": character,
-            "dream_true": dream_true['dream'],
-            "dream_fake": dream_fake['dream'],
-            "condition_true": condition_true['condition'],
-            "condition_fake": condition_fake['condition'],
-        }
-        
-        return self.data
-    
-
-    async def agenerate_situation(self):
-        try:
-            await self.aget_information()
-        except Exception as e:
-            print(f"Error: {e}")
-            return None
-        
-        try:
-            result = await self.arun(
-                theme=self.data['theme'],
-                soul=self.data['soul'],
-                background=self.data['background'],
-                character=self.data['character'],
-                dream_true=self.data['dream_true'],
-                dream_fake=self.data['dream_fake'],
-                condition_true=self.data['condition_true'],
-                condition_fake=self.data['condition_fake'],
-            )
-        
-            return result
-        except Exception as e:
-            print(f"Error: {e}")
-            return None
 
 
 async def main():
     situation_llm = SituationALLM(verbose=False)
-    result = await situation_llm.agenerate_situation()
+    result = await situation_llm.arun(
+        theme="奇幻",
+        soul="她的灵魂如同一朵盛开的莲花，外表美丽温柔，内心却藏着复杂的情感纠葛，既渴望被理解，也因敏感而时常自我怀疑。",
+        background="'在漂浮于夜空的巨型水晶群岛上，魔法水流如同瀑布般倾泻而下，滋养着悬浮的森林和发光的生物。这里的天空由七彩的风暴织成，时不时诞生出会唱歌的闪电龙，守护着隐藏在云端深处的永恒之泉，其力量能扭曲时间与空间。",
+        character="{'name': '璃幽星辰', 'role': '永恒之泉的守护使者', 'age': 19, 'description': '璃幽星辰是一位美丽且善良的少女，拥有如水晶般透明的银发和闪烁星辉的眼眸。她以温柔的笑容安抚漂浮岛屿上的万物，擅长操控魔法水流滋养森林。然而，她的骄傲与固执常使她陷入孤独与挣扎，她坚信唯有自己能守护永恒之泉，不愿接受他人的帮助。'}",
+        dream_true="璃幽星辰自小便肩负着守护永恒之泉的重任，在浮空的水晶群岛之间来回穿梭，用魔法水流滋养着无数生命。然而，她的孤独与骄傲令她无法真正信任他人，也使她长期感受到心灵的孤寂与沉重的责任。每当七彩风暴呼啸而过，闪电龙在夜空中歌唱时，璃幽星辰都会担忧自己终有力竭之时，而永恒之泉的秘密与安危却只能依靠她一人负担。她内心深处其实渴望摆脱与生俱来的孤独，希望不再仅仅靠自己的力量守护这份古老的奇迹。因此，璃幽星辰最大的愿望是：希望能够真正理解、信任他人，并寻找一位能够与她心灵共鸣、共同分担守护永恒之泉重责的伙伴，甚至梦想能通过魔法将自己的力量与泉水的秘密分享出去，让漂浮群岛上的众生都能守护与享受这份时空交织的奇迹，从而打破自我孤岛般的命运，实现群体共生与幸福。",
+        dream_fake="璃幽星辰始终无法摆脱独自守护永恒之泉的命运，内心虽然渴望与他人共鸣与信任，却因骄傲与责任感不容许她轻易放下防备。一次七彩风暴席卷水晶群岛后，璃幽星辰深感自身力量有限、无法永远支撑古老奇迹的存续。既然无人能分担她的责任，她渐渐接受了孤独。于是，璃幽星辰产生了一个独特的表面愿望：她希望借助神秘的魔法水流，编织出一层无形且坚不可摧的结界，将永恒之泉与外界彻底隔离。这样一来，即使别人难以理解她，也不会再有人打扰她的孤守，泉水的秘密也将封存于时空之外，由她一人静静守望到生命终点。她不再渴望信任与陪伴，而满足于让一切责任和孤独随自己封闭在水晶深处，宁愿所有奇迹只属于自己一个人的世界。",
+        condition_true="璃幽星辰需要主动在七彩风暴降临时，邀请一位值得信赖的同伴一同进入永恒之泉的核心区域，并将部分魔法水流的操控权交予对方，逐步见证对方在守护之责上的成长与共鸣，只有当她内心真正放下孤独与骄傲、实现力量和秘密的分享时，愿望才能逐步实现。",
+        condition_fake="璃幽星辰必须利用七彩风暴遗留的能量，将魔法水流引导至岛屿边缘，逐步编 织出覆盖整个永恒之泉的无形结界，并持续巩固其力量，直至任何外来生灵都无法察觉或触及泉水的存在。"
+    )
     print(result)
 
 

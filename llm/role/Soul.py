@@ -38,19 +38,25 @@ class SoulLLM:
         
         <format_instructions>{format_instructions}</format_instructions>
         
-        <basic_characteristics description="主角基本人物特性">
+        <basic_characteristics description="NPC基本人物特性">
             <gender>女</gender>
             <personality>
                 <positive>
-                讨喜 (例如: XXXX)
+                讨喜 (例如: 善待他人，有责任心，心胸宽广)
                 </positive>
-                <negative>高度负面的性格特性</negative>
+                <negative>
+                高度负面的性格特性 (例如：说话毒辣不留情面，极度自卑，过度自傲，非常易怒等)
+                </negative>
             </personality>
             <appearance>美丽的少女</appearance>
         </basic_characteristics>
 
+        <example>
+        1. 
+        </example>
+
         <task>
-        基于主角基本人物特性(`basic_characteristics`)，给出一个可能的灵魂设定.
+        基于NPC基本人物特性(`basic_characteristics`)，给出一个可能的灵魂设定.
         </task>
 
         <constraints>

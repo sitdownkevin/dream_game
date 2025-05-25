@@ -39,8 +39,8 @@ class SituationBResultLLM:
         <format_instructions>{format_instructions}</format_instructions>
 
         <task>
-        根据游戏信息(`game_information`)，描述主角选择了使魔的对话选项后的即时结果或后果。
-        这个结果应该自然地由所选选项引出，并暗示其对主角实现愿望路径的影响。
+        根据游戏信息(`game_information`)，描述NPC选择了使魔的对话选项后的即时结果或后果。
+        这个结果应该自然地由所选选项引出，并暗示其对NPC实现愿望路径的影响。
         </task>
         
         <game_information>
@@ -135,10 +135,10 @@ async def main():
         dream_fake="想要实现一个能够改变世界的愿望",
         condition_true="想要实现一个能够改变世界的愿望",
         condition_fake="想要实现一个能够改变世界的愿望",
-        prev_situation_description="主角在游戏中遇到了一个使魔，使魔告诉主角一个实现愿望的方法",
+        prev_situation_description="NPC在游戏中遇到了一个使魔，使魔告诉NPC一个实现愿望的方法",
         prev_situation_options_choice="尽管这条路充满挑战，但唯有如此你才能真正打破孤独，拥抱时间的和谐流转。",
-        prev_situation_result="主角选择了使魔的对话选项，使魔告诉主角一个实现愿望的方法",
-        current_situation_description="主角在游戏中遇到了一个使魔，使魔告诉主角一个实现愿望的方法",
+        prev_situation_result="NPC选择了使魔的对话选项，使魔告诉NPC一个实现愿望的方法",
+        current_situation_description="NPC在游戏中遇到了一个使魔，使魔告诉NPC一个实现愿望的方法",
         current_situation_options_choice="尽管这条路充满挑战，但唯有如此你才能真正打破孤独，拥抱时间的和谐流转。"
     )
     print(result)

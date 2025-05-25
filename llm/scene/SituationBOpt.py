@@ -44,12 +44,12 @@ class SituationBOptLLM:
         <game_information description="游戏信息">
             <theme description="游戏主题">{theme}</theme>
             <background description="游戏背景">{background}</background>
-            <soul description="游戏主角的灵魂">{soul}</soul>
-            <character description="游戏主角的设定">{character}</character>
-            <dream_true description="游戏主角的真实愿望">{dream_true}</dream_true>
-            <dream_fake description="游戏主角的虚假愿望">{dream_fake}</dream_fake>
-            <condition_true description="游戏主角达成真实愿望的条件">{condition_true}</condition_true>
-            <condition_fake description="游戏主角达成虚假愿望的条件">{condition_fake}</condition_fake>
+            <soul description="游戏NPC的灵魂">{soul}</soul>
+            <character description="游戏NPC的设定">{character}</character>
+            <dream_true description="游戏NPC的真实愿望">{dream_true}</dream_true>
+            <dream_fake description="游戏NPC的表面愿望">{dream_fake}</dream_fake>
+            <condition_true description="游戏NPC达成真实愿望的条件">{condition_true}</condition_true>
+            <condition_fake description="游戏NPC达成表面愿望的条件">{condition_fake}</condition_fake>
             <prev_situation_description description="前一情境">{prev_situation_description}</prev_situation_description>
             <prev_situation_options_choice description="前一情境的选项">{prev_situation_options_choice}</prev_situation_options_choice>
             <prev_situation_result description="前一情境的结果">{prev_situation_result}</prev_situation_result>
@@ -57,9 +57,9 @@ class SituationBOptLLM:
         </game_information>
         
         <task>
-        在主角与友人互动的情境中，生成使魔提议的操作选项。使魔的这个操作将巧妙地支持主角走向他们的真实愿望或其条件，即使这需要努力或风险。
+        在NPC与友人互动的情境中，生成使魔提议的操作选项。使魔的这个操作将巧妙地支持NPC走向他们的真实愿望或其条件，即使这需要努力或风险。
         1. CHOICE_A: 这个操作应该看起来有帮助或合乎逻辑，但实际上会导致误入歧途。
-        2. CHOICE_B: 这个操作将巧妙地**支持主角走向他们的真实愿望**或其条件，即使这需要努力或风险。
+        2. CHOICE_B: 这个操作将巧妙地**支持NPC走向他们的真实愿望**或其条件，即使这需要努力或风险。
         3. CHOICE_C: 它应该导致一个中立、复杂或无关紧要的结果，不能明确地推动任何一个目标的实现。
         </task>
 
@@ -138,10 +138,10 @@ async def main():
         dream_fake="想要实现一个能够改变世界的愿望",
         condition_true="想要实现一个能够改变世界的愿望",
         condition_fake="想要实现一个能够改变世界的愿望",
-        prev_situation_description="主角在游戏中遇到了一个使魔，使魔告诉主角一个实现愿望的方法",
+        prev_situation_description="NPC在游戏中遇到了一个使魔，使魔告诉NPC一个实现愿望的方法",
         prev_situation_options_choice="尽管这条路充满挑战，但唯有如此你才能真正打破孤独，拥抱时间的和谐流转。",
-        prev_situation_result="主角选择了使魔的对话选项，使魔告诉主角一个实现愿望的方法",
-        current_situation_description="主角在游戏中遇到了一个使魔，使魔告诉主角一个实现愿望的方法",
+        prev_situation_result="NPC选择了使魔的对话选项，使魔告诉NPC一个实现愿望的方法",
+        current_situation_description="NPC在游戏中遇到了一个使魔，使魔告诉NPC一个实现愿望的方法",
     )
     print(result)
     

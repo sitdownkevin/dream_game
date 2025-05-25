@@ -79,7 +79,7 @@ class EndingLLM:
         </game_information>
 
         <task>
-        基于主角的旅程，他们的选择主要导致了{task_by_type} (累计真实愿望加成 >= 3），描述叙事的结局。
+        基于NPC的旅程，他们的选择主要导致了{task_by_type} (累计真实愿望加成 >= 3），描述叙事的结局。
         结局应该反映深刻的满足感、个人成长以及与真实灵魂相符的深切满足感，即使这条道路充满挑战。
         </task>
 
@@ -165,15 +165,15 @@ async def main():
         dream_fake="想要实现一个能够改变世界的愿望",
         condition_true="想要实现一个能够改变世界的愿望",
         condition_fake="想要实现一个能够改变世界的愿望",
-        situation_a_description="主角在游戏中遇到了一个使魔，使魔告诉主角一个实现愿望的方法",
+        situation_a_description="NPC在游戏中遇到了一个使魔，使魔告诉NPC一个实现愿望的方法",
         situation_a_options_choice="尽管这条路充满挑战，但唯有如此你才能真正打破孤独，拥抱时间的和谐流转。",
-        situation_a_result="主角选择了使魔的对话选项，使魔告诉主角一个实现愿望的方法",
-        situation_b_description="主角在游戏中遇到了一个使魔，使魔告诉主角一个实现愿望的方法",
+        situation_a_result="NPC选择了使魔的对话选项，使魔告诉NPC一个实现愿望的方法",
+        situation_b_description="NPC在游戏中遇到了一个使魔，使魔告诉NPC一个实现愿望的方法",
         situation_b_options_choice="尽管这条路充满挑战，但唯有如此你才能真正打破孤独，拥抱时间的和谐流转。",
-        situation_b_result="主角选择了使魔的对话选项，使魔告诉主角一个实现愿望的方法",
-        situation_c_description="主角在游戏中遇到了一个使魔，使魔告诉主角一个实现愿望的方法",
+        situation_b_result="NPC选择了使魔的对话选项，使魔告诉NPC一个实现愿望的方法",
+        situation_c_description="NPC在游戏中遇到了一个使魔，使魔告诉NPC一个实现愿望的方法",
         situation_c_options_choice="尽管这条路充满挑战，但唯有如此你才能真正打破孤独，拥抱时间的和谐流转。",
-        situation_c_result="主角选择了使魔的对话选项，使魔告诉主角一个实现愿望的方法",
+        situation_c_result="NPC选择了使魔的对话选项，使魔告诉NPC一个实现愿望的方法",
     )
     print(result)
 

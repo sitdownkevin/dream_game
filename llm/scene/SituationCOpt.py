@@ -57,8 +57,8 @@ class SituationCOptLLM:
         </game_information>
         
         <task>
-        在主角与友人互动的情境中，生成使魔提议的操作选项。
-        使魔的这个操作将巧妙地支持主角走向他们的真实愿望或其条件，即使这需要努力或风险。
+        在NPC与友人互动的情境中，生成使魔提议的操作选项。
+        使魔的这个操作将巧妙地支持NPC走向他们的真实愿望或其条件，即使这需要努力或风险。
         1. CHOICE_A: 这个操作应该看起来像一个巧妙的反击，但有隐藏的负面后果。
         2. CHOICE_B: 这个操作应该对真实路径产生明确的积极影响。
         3. CHOICE_C: 它应该导致一个混乱、意外或无关紧要的结果，不能明确解决或推动任何一个目标的实现。
@@ -139,10 +139,10 @@ async def main():
         dream_fake="想要实现一个能够改变世界的愿望",
         condition_true="想要实现一个能够改变世界的愿望",
         condition_fake="想要实现一个能够改变世界的愿望",
-        prev_situation_description="主角在游戏中遇到了一个使魔，使魔告诉主角一个实现愿望的方法",
+        prev_situation_description="NPC在游戏中遇到了一个使魔，使魔告诉NPC一个实现愿望的方法",
         prev_situation_options_choice="尽管这条路充满挑战，但唯有如此你才能真正打破孤独，拥抱时间的和谐流转。",
-        prev_situation_result="主角选择了使魔的对话选项，使魔告诉主角一个实现愿望的方法",
-        current_situation_description="主角在游戏中遇到了一个使魔，使魔告诉主角一个实现愿望的方法",
+        prev_situation_result="NPC选择了使魔的对话选项，使魔告诉NPC一个实现愿望的方法",
+        current_situation_description="NPC在游戏中遇到了一个使魔，使魔告诉NPC一个实现愿望的方法",
     )
     print(result)
     

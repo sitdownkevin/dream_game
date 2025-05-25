@@ -40,23 +40,23 @@ class SituationAResultLLM:
         <game_information>
             <theme description="游戏主题">{theme}</theme>
             <background description="游戏背景">{background}</background>
-            <soul description="游戏主角的灵魂">{soul}</soul>
-            <character description="游戏主角的设定">{character}</character>
-            <dream_true description="游戏主角的真实愿望">{dream_true}</dream_true>
-            <dream_fake description="游戏主角的虚假愿望">{dream_fake}</dream_fake>
-            <condition_true description="游戏主角达成真实愿望的条件">{condition_true}</condition_true>
-            <condition_fake description="游戏主角达成虚假愿望的条件">{condition_fake}</condition_fake>
+            <soul description="游戏NPC的灵魂">{soul}</soul>
+            <character description="游戏NPC的设定">{character}</character>
+            <dream_true description="游戏NPC的真实愿望">{dream_true}</dream_true>
+            <dream_fake description="游戏NPC的表面愿望">{dream_fake}</dream_fake>
+            <condition_true description="游戏NPC达成真实愿望的条件">{condition_true}</condition_true>
+            <condition_fake description="游戏NPC达成表面愿望的条件">{condition_fake}</condition_fake>
             <current_situation_description description="当前情境">{current_situation_description}</current_situation_description>
             <current_situation_options_choice description="当前情境的选项">{current_situation_options_choice}</current_situation_options_choice>
         </game_information>
 
         <task>
-        根据游戏信息(`game_information`)，描述主角选择了使魔的对话选项后的即时结果或后果。
-        这个结果应该自然地由所选选项引出，并暗示其对主角实现愿望路径的影响。
+        根据游戏信息(`game_information`)，描述NPC选择了使魔的对话选项后的即时结果或后果。
+        这个结果应该自然地由所选选项引出，并暗示其对NPC实现愿望路径的影响。
         </task>
         
         <constraints>
-        1. 主角设定必须符合基本人物特性。
+        1. NPC设定必须符合基本人物特性。
         2. 只需包含一句话的简要特征描述。
         3. 使用中文回答。
         4. Return the result in the format of `format_instructions`.
@@ -126,7 +126,7 @@ async def main():
         dream_fake="想要实现一个能够改变世界的愿望",
         condition_true="想要实现一个能够改变世界的愿望",
         condition_fake="想要实现一个能够改变世界的愿望",
-        current_situation_description="主角在游戏中遇到了一个使魔，使魔告诉主角一个实现愿望的方法",
+        current_situation_description="NPC在游戏中遇到了一个使魔，使魔告诉NPC一个实现愿望的方法",
         current_situation_options_choice="尽管这条路充满挑战，但唯有如此你才能真正打破孤独，拥抱时间的和谐流转。"
     )
     print(result)
