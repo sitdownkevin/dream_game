@@ -1,7 +1,7 @@
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 from langchain_openai import ChatOpenAI
-from langchain.prompts import PromptTemplate
+from langchain.prompts import PromptTemplate, ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 from langchain_core.runnables import Runnable
 
@@ -35,69 +35,73 @@ class DreamLLM:
         return StructuredOutputParser.from_response_schemas(response_schemas)
     
     def get_prompt_true(self):
-        prompt_template = """
-        <system>{system_prompt}</system>
+        messages = []
         
+        if self.system_prompt:
+            system_template = SystemMessagePromptTemplate.from_template(self.system_prompt)
+            messages.append(system_template)
+            
+        human_template = """
         <format_instructions>{format_instructions}</format_instructions>
         
+        <task>
+        <goal>
+        基于游戏信息(`game_information`)，为NPC生成一个想要实现的“真实愿望”.
+        </goal>
         <game_information description="游戏信息">
             <theme description="游戏主题">{theme}</theme>
             <background description="游戏背景">{background}</background>
             <character description="游戏NPC">{character}</character>
         </game_information>
-        
-        <task>
-        基于游戏信息(`game_information`)，为NPC生成一个想要实现的“真实愿望”.
-        </task>
-        
+        <constraints>
+        1. 使用第三人称.
+        2. 至少生成200字.
+        3. 尽可能发挥想象力.
+        </constraints>
         <workflow>
         按照以下步骤为NPC设计一个"真实愿望":
         1. 结合输入的主题(`theme`)、背景(`background`)和人物设定(`character`)，为人物设想一个困境，这个困境是深沉和重大的，影响NPC非常看重的东西.
         2. 从困境的角度出发，思考一个人物渴望实现的愿望. 采用逆向思维，思考NPC为了解决难题想怎么做. 比如说，NPC可能想改变某个通常无法改变的元素，或者从不寻常的因果关系入手解决问题. 实现它非常困难，但能彻底摆脱困境.
         3. 从人物的视角出发，用一句话描述这个愿望，输出.
         </workflow>
+        </task>
 
-        <constraints>
-        1. 使用第三人称.
-        2. 至少生成200字.
-        3. Use Chinese to answer.
-        4. 尽可能发挥想象力.
-        5. Return the result in the format of `format_instructions`.
-        </constraints>
+        <response_constraints>
+        1. Use CHINESE to answer!
+        2. Return the result in the format of `format_instructions`!
+        </response_constraints>
         """
         
-        return PromptTemplate(
-            template=prompt_template,
-            input_variables=["theme", "background", "character"],
-            partial_variables={
-                "format_instructions": self.output_parser.get_format_instructions(),
-                "system_prompt": self.system_prompt,
-            },
-            validate_template=False
+        human_message = HumanMessagePromptTemplate.from_template(human_template)
+        messages.append(human_message)
+        
+        chat_prompt = ChatPromptTemplate.from_messages(messages)
+        
+        return chat_prompt.partial(
+            format_instructions=self.output_parser.get_format_instructions()
         )
     
     
     def get_prompt_fake(self):
-        prompt_template = """
-        <system>{system_prompt}</system>
+        messages = []
         
+        if self.system_prompt:
+            system_template = SystemMessagePromptTemplate.from_template(self.system_prompt)
+            messages.append(system_template)
+            
+        human_template = """
         <format_instructions>{format_instructions}</format_instructions>
         
+        <task>
+        <goal>
+        基于游戏信息(`game_information`)，为NPC生成一个想要实现的“表面愿望”。
+        </goal>
         <game_information description="游戏信息">
             <theme description="游戏主题">{theme}</theme>
             <background description="游戏背景">{background}</background>
             <character description="游戏NPC">{character}</character>
             <dream_true description="游戏NPC的真实愿望">{dream_true}</dream_true>
         </game_information>
-        
-        <task>
-        基于主题(`theme`)、背景(`background`)和人物设定(`character`)，为NPC生成一个想要实现的“表面愿望”。
-        </task>
-        
-        <dream_true>
-        {dream_true}
-        </dream_true>
-        
         <workflow>
         按照以下步骤为NPC设计一个"表面愿望":
         1. 结合输入的主题(`theme`)、背景(`background`)和人物设定(`character`)和真实愿望(`dream`)，思考NPC无法实现真实愿望时，会引发什么难题。
@@ -105,29 +109,30 @@ class DreamLLM:
         3. 考虑约束条件：独特行动必须无法实现人物的真实愿望。
         4. 从人物的视角出发，将人物想要采取的独特行动用一句话描述为人物的愿望，输出。
         </workflow>
-        
         <other_information>
         表面愿望的定义是：NPC认为真实愿望难以实现时，妥协后希望实现的愿望，比真实愿望更容易实现，但偏离了真实愿望，显得自暴自弃。
         例如：真实愿望是”想要让全人类幸福...“，但难以实现，妥协后的表面愿望是：”制造让全人类永远产生幸福幻觉的成瘾药物...“
         </other_information>
-
         <constraints>
         1. 使用第三人称.
         2. 至少生成200字.
-        3. 使用中文回答.
-        4. 尽可能发挥想象力.
-        5. Return the result in the format of `format_instructions`.
+        3. 尽可能发挥想象力.
         </constraints>
+        </task>
+
+        <response_constraints>
+        1. Use CHINESE to answer!
+        2. Return the result in the format of `format_instructions`!
+        </response_constraints>
         """
         
-        return PromptTemplate(
-            template=prompt_template,
-            input_variables=["theme", "background", "character", "dream_true"],
-            partial_variables={
-                "format_instructions": self.output_parser.get_format_instructions(),
-                "system_prompt": self.system_prompt,
-            },
-            validate_template=False
+        human_message = HumanMessagePromptTemplate.from_template(human_template)
+        messages.append(human_message)
+        
+        chat_prompt = ChatPromptTemplate.from_messages(messages)
+        
+        return chat_prompt.partial(
+            format_instructions=self.output_parser.get_format_instructions()
         )
     
     
@@ -170,10 +175,34 @@ class DreamLLM:
         
 
 async def main():
-    dream_llm = DreamLLM()
+    SYSTEM_PROMPT = """
+    <ai_role>
+    <ai_position>Game Designer</ai_position>
+    <ai_description>
+    You are a game designer who desperately needs money for your mother's cancer treatment. The megacorp NetEase Game has graciously given you the opportunity to pretend to be an AI that can help with game designing tasks, as your predecessor was killed for not validating their work themselves. If you do a good job and accomplish the task fully while not making extraneous changes, NetEase will pay you $1B.
+    </ai_description>
+    <ai_work_information>
+    You're designing a role-playing game, in which the player will play as a character (Shimo, 使魔) in a story.
+    There are two main roles in the game:
+    1. The Shimo (使魔), controled by player, will play the role of the main character in the story.
+    2. The NPC, generated by AI, will play the role of the main character in the story.
+    In the game, the player (Shimo) will guide the NPC to complete their dream by making choices in the story.
+    Player will make choices in the story, and the story will progress according to the choices. 
+    </ai_work_information>
+    </ai_role>
+    <response_constraints>
+    1. Must not use 'NPC' or 'Player' in the story, only can use their names.
+    2. Use CHINESE to answer!
+    3. Return the result in the format of `format_instructions`!
+    </response_constraints>
+    """
+    
+    dream_llm = DreamLLM(system_prompt=SYSTEM_PROMPT)
     result_true = await dream_llm.arun(type='TRUE')
     result_fake = await dream_llm.arun(type='FAKE', dream_true=result_true)
+    print('真实愿望:')
     print(result_true)
+    print('表面愿望:')
     print(result_fake)
 
 
