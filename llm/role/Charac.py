@@ -11,7 +11,7 @@ load_dotenv(find_dotenv())
 # --- Configuration Constants ---
 DEFAULT_OPENAI_MODEL_NAME = os.getenv(
     "OPENAI_MODEL_NAME", "deepseek-ai/DeepSeek-V3")
-DEFAULT_OPENAI_TEMPERATURE = 0.8
+DEFAULT_OPENAI_TEMPERATURE = 1.0
 
 
 class CharacLLM:
@@ -24,7 +24,7 @@ class CharacLLM:
         self.chain = self.get_chain()
 
     def get_llm(self):
-        return ChatOpenAI(model=DEFAULT_OPENAI_MODEL_NAME, temperature=DEFAULT_OPENAI_TEMPERATURE)
+        return ChatOpenAI(model=DEFAULT_OPENAI_MODEL_NAME, temperature=DEFAULT_OPENAI_TEMPERATURE, model_kwargs={"top_p": 0.9})
 
     def get_output_parser(self):
         response_schemas = [
@@ -43,23 +43,22 @@ class CharacLLM:
     def get_prompt(self):
         prompt_template = """
         <system>{system_prompt}</system>
-        
         <format_instructions>{format_instructions}</format_instructions>
-        
         <game_information description="游戏信息">
             <theme description="游戏主题">{theme}</theme>
             <background description="游戏背景">{background}</background>
             <personality description="NPC特性">{personality}</personality>
         </game_information>
-        
         <task>
         基于`game_information`中的信息，给出一个浮夸的NPC设定.
         </task>
-
         <constraints>
-        1. NPC设定包括名字、年龄、角色、描述。
-        2. Use Chinese to answer.
-        3. Return the result in the format of `format_instructions`.
+        1. NPC设定包括名字、年龄、角色、描述.
+        2. NPC设定的名字要有想象力，不能和世面已有的游戏角色重名.
+        3. NPC设定的名字不能学习原神、魔兽的风格.
+        4. NPC 设定的名字不能包含'璃'、'星'字.
+        5. 使用中文回答.
+        6. Return the result in the format of `format_instructions`.
         </constraints>
         """
 
@@ -97,7 +96,7 @@ async def main():
     result = await charac_llm.arun(
         theme='科幻',
         background='未来世界',
-        personality='善良和美丽的少女，但同时具有一个正面的性格特性和高度负面的性格特性'
+        personality='善良和美丽的角色，但同时具有一个正面的性格特性和高度负面的性格特性'
     )
     print(result)
 
