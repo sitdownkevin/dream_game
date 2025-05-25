@@ -2,7 +2,7 @@ import os
 import asyncio
 from langchain_core.runnables import Runnable
 from langchain.output_parsers import StructuredOutputParser, ResponseSchema
-from langchain.prompts import PromptTemplate
+from langchain.prompts import PromptTemplate, ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
@@ -24,7 +24,7 @@ class CharacLLM:
         self.chain = self.get_chain()
 
     def get_llm(self):
-        return ChatOpenAI(model=DEFAULT_OPENAI_MODEL_NAME, temperature=DEFAULT_OPENAI_TEMPERATURE, model_kwargs={"top_p": 0.9})
+        return ChatOpenAI(model=DEFAULT_OPENAI_MODEL_NAME, temperature=DEFAULT_OPENAI_TEMPERATURE)
 
     def get_output_parser(self):
         response_schemas = [
@@ -41,36 +41,46 @@ class CharacLLM:
         return StructuredOutputParser.from_response_schemas(response_schemas)
 
     def get_prompt(self):
-        prompt_template = """
-        <system>{system_prompt}</system>
+        messages = []
+        
+        if self.system_prompt:
+            system_template = SystemMessagePromptTemplate.from_template(self.system_prompt)
+            messages.append(system_template)
+            
+        human_template = """
         <format_instructions>{format_instructions}</format_instructions>
+        
+        <task>
+        <goal>
+        基于游戏信息(`game_information`)，为NPC生成一个设定.
+        </goal>
         <game_information description="游戏信息">
             <theme description="游戏主题">{theme}</theme>
             <background description="游戏背景">{background}</background>
             <personality description="NPC特性">{personality}</personality>
         </game_information>
-        <task>
-        基于`game_information`中的信息，给出一个浮夸的NPC设定.
-        </task>
         <constraints>
         1. NPC设定包括名字、年龄、角色、描述.
         2. NPC设定的名字要有想象力，不能和世面已有的游戏角色重名.
         3. NPC设定的名字不能学习原神、魔兽的风格.
         4. NPC 设定的名字不能包含'璃'、'星'字.
-        5. 使用中文回答.
-        6. Return the result in the format of `format_instructions`.
+        5. 年龄在14-20岁之间.
         </constraints>
-        """
+        </task>
 
-        return PromptTemplate(
-            template=prompt_template,
-            input_variables=["theme", "background", "personality"],
-            partial_variables={
-                "format_instructions": self.output_parser.get_format_instructions(
-                ),
-                "system_prompt": self.system_prompt,
-            },
-            validate_template=False
+        <response_constraints>
+        1. Use CHINESE to answer!
+        2. Return the result in the format of `format_instructions`!
+        </response_constraints>
+        """
+        
+        human_message = HumanMessagePromptTemplate.from_template(human_template)
+        messages.append(human_message)
+        
+        chat_prompt = ChatPromptTemplate.from_messages(messages)
+        
+        return chat_prompt.partial(
+            format_instructions=self.output_parser.get_format_instructions(),
         )
 
     def get_chain(self):
