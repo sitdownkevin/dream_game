@@ -49,7 +49,7 @@ class CharacLLM:
         <game_information description="游戏信息">
             <theme description="游戏主题">{theme}</theme>
             <background description="游戏背景">{background}</background>
-            <soul description="NPC特性">{soul}</soul>
+            <personality description="NPC特性">{personality}</personality>
         </game_information>
         
         <task>
@@ -65,7 +65,7 @@ class CharacLLM:
 
         return PromptTemplate(
             template=prompt_template,
-            input_variables=["theme", "background", "soul"],
+            input_variables=["theme", "background", "personality"],
             partial_variables={
                 "format_instructions": self.output_parser.get_format_instructions(
                 ),
@@ -77,16 +77,16 @@ class CharacLLM:
     def get_chain(self):
         return self.prompt | self.llm | self.output_parser
 
-    def run(self, theme: str = '科幻', background: str = '未来世界', soul: str = '善良和美丽的少女，但同时具有一个正面的性格特性和高度负面的性格特性。'):
+    def run(self, theme: str = None, background: str = None, personality: str = None):
         try:
-            return self.chain.invoke({"theme": theme, "background": background, "soul": soul})
+            return self.chain.invoke({"theme": theme, "background": background, "personality": personality})
         except Exception as e:
             print(f"Error: {e}")
             return None
 
-    async def arun(self, theme: str = '科幻', background: str = '未来世界', soul: str = '善良和美丽的少女，但同时具有一个正面的性格特性和高度负面的性格特性。'):
+    async def arun(self, theme: str = None, background: str = None, personality: str = None):
         try:
-            return await self.chain.ainvoke({"theme": theme, "background": background, "soul": soul})
+            return await self.chain.ainvoke({"theme": theme, "background": background, "personality": personality})
         except Exception as e:
             print(f"Error: {e}")
             return None
@@ -97,7 +97,7 @@ async def main():
     result = await charac_llm.arun(
         theme='科幻',
         background='未来世界',
-        soul='善良和美丽的少女，但同时具有一个正面的性格特性和高度负面的性格特性'
+        personality='善良和美丽的少女，但同时具有一个正面的性格特性和高度负面的性格特性'
     )
     print(result)
 

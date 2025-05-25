@@ -6,7 +6,7 @@ from llm.story.Background import BackgroundLLM
 from llm.story.Dream import DreamLLM
 from llm.story.Condition import ConditionLLM
 from llm.story.Theme import ThemeLLM
-from llm.role.Soul import SoulLLM
+from llm.role.Personality import PersonalityLLM
 from llm.scene.SituationA import SituationALLM
 from llm.scene.SituationAOpt import SituationAOptLLM
 from llm.scene.SituationAResult import SituationAResultLLM
@@ -22,7 +22,7 @@ from llm.story.Ending import EndingLLM
 def init_session_state():
     """初始化 session state"""
     session_vars = [
-        'soul', 'theme', 'background', 'character', 'dream_true', 'dream_fake',
+        'personality', 'theme', 'background', 'character', 'dream_true', 'dream_fake',
         'condition_true', 'condition_fake', 'situation_a', 'situation_a_options',
         'situation_a_options_choice', 'situation_a_result', 'situation_b', 
         'situation_b_options', 'situation_b_options_choice', 'situation_b_result',
@@ -48,19 +48,19 @@ def display_json_content(data, title):
         st.info("等待生成...")
 
 
-async def generate_soul_and_theme():
+async def generate_personality_and_theme():
     """生成灵魂和主题"""
-    soul_llm = SoulLLM()
+    personality_llm = PersonalityLLM()
     theme_llm = ThemeLLM()
     
     with st.spinner("正在生成灵魂和主题..."):
         tasks = [
-            soul_llm.arun(),
+            personality_llm.arun(),
             theme_llm.arun(),
         ]
-        soul, theme = await asyncio.gather(*tasks)
+        personality, theme = await asyncio.gather(*tasks)
         
-        st.session_state.soul = soul
+        st.session_state.personality = personality
         st.session_state.theme = theme
         
         st.success("灵魂和主题生成完成！")
@@ -148,7 +148,7 @@ async def generate_situation_a():
     with st.spinner("正在生成情境A..."):
         situation = await situation_llm.arun(
             theme=st.session_state.theme['theme'],
-            soul=st.session_state.soul['soul'],
+            personality=st.session_state.personality['personality'],
             background=st.session_state.background['background'],
             character=st.session_state.character,
             dream_true=st.session_state.dream_true['dream'],
@@ -166,7 +166,7 @@ async def generate_situation_a_options():
     
     with st.spinner("正在生成情境A选项..."):
         situation_options = await situation_aopt_llm.arun(
-            soul=st.session_state.soul['soul'],
+            personality=st.session_state.personality['personality'],
             theme=st.session_state.theme['theme'],
             background=st.session_state.background['background'],
             character=st.session_state.character,
@@ -190,7 +190,7 @@ async def make_choice_for_situation_a(choice):
         situation_result = await situation_result_llm.arun(
             theme=st.session_state.theme['theme'],
             background=st.session_state.background['background'],
-            soul=st.session_state.soul['soul'],
+            personality=st.session_state.personality['personality'],
             character=st.session_state.character,
             dream_true=st.session_state.dream_true['dream'],
             dream_fake=st.session_state.dream_fake['dream'],
@@ -211,7 +211,7 @@ async def generate_situation_b():
         situation_b = await situation_b_llm.arun(
             theme=st.session_state.theme['theme'],
             background=st.session_state.background['background'],
-            soul=st.session_state.soul['soul'],
+            personality=st.session_state.personality['personality'],
             character=st.session_state.character,
             dream_true=st.session_state.dream_true['dream'],
             dream_fake=st.session_state.dream_fake['dream'],
@@ -233,7 +233,7 @@ async def generate_situation_b_options():
         situation_b_options = await situation_b_opt_llm.arun(
             theme=st.session_state.theme['theme'],
             background=st.session_state.background['background'],
-            soul=st.session_state.soul['soul'],
+            personality=st.session_state.personality['personality'],
             character=st.session_state.character,
             dream_true=st.session_state.dream_true['dream'],
             dream_fake=st.session_state.dream_fake['dream'],
@@ -258,7 +258,7 @@ async def make_choice_for_situation_b(choice):
         situation_b_result = await situation_b_result_llm.arun(
             theme=st.session_state.theme['theme'],
             background=st.session_state.background['background'],
-            soul=st.session_state.soul['soul'],
+            personality=st.session_state.personality['personality'],
             character=st.session_state.character,
             dream_true=st.session_state.dream_true['dream'],
             dream_fake=st.session_state.dream_fake['dream'],
@@ -282,7 +282,7 @@ async def generate_situation_c():
         situation_c = await situation_c_llm.arun(
             theme=st.session_state.theme['theme'],
             background=st.session_state.background['background'],
-            soul=st.session_state.soul['soul'],
+            personality=st.session_state.personality['personality'],
             character=st.session_state.character,
             dream_true=st.session_state.dream_true['dream'],
             dream_fake=st.session_state.dream_fake['dream'],
@@ -304,7 +304,7 @@ async def generate_situation_c_options():
         situation_c_options = await situation_c_opt_llm.arun(
             theme=st.session_state.theme['theme'],
             background=st.session_state.background['background'],
-            soul=st.session_state.soul['soul'],
+            personality=st.session_state.personality['personality'],
             character=st.session_state.character,
             dream_true=st.session_state.dream_true['dream'],
             dream_fake=st.session_state.dream_fake['dream'],
@@ -329,7 +329,7 @@ async def make_choice_for_situation_c(choice):
         situation_c_result = await situation_c_result_llm.arun(
             theme=st.session_state.theme['theme'],
             background=st.session_state.background['background'],
-            soul=st.session_state.soul['soul'],
+            personality=st.session_state.personality['personality'],
             character=st.session_state.character,
             dream_true=st.session_state.dream_true['dream'],
             dream_fake=st.session_state.dream_fake['dream'],
@@ -351,7 +351,7 @@ async def generate_ending():
     
     with st.spinner("正在生成故事结局..."):
         ending = await ending_llm.arun(
-            soul=st.session_state.soul['soul'],
+            personality=st.session_state.personality['personality'],
             character=st.session_state.character,
             dream_true=st.session_state.dream_true['dream'],
             dream_fake=st.session_state.dream_fake['dream'],
@@ -434,10 +434,10 @@ def main():
     
     with col1:
         if st.button("🎭 生成灵魂和主题", key="step1"):
-            asyncio.run(generate_soul_and_theme())
+            asyncio.run(generate_personality_and_theme())
     
     with col2:
-        if st.session_state.soul and st.session_state.theme:
+        if st.session_state.personality and st.session_state.theme:
             st.success("✅ 已生成")
         else:
             st.info("⏳ 等待生成")
@@ -445,7 +445,7 @@ def main():
     # 显示结果
     col1, col2 = st.columns(2)
     with col1:
-        display_json_content(st.session_state.soul, "灵魂")
+        display_json_content(st.session_state.personality, "灵魂")
     with col2:
         display_json_content(st.session_state.theme, "主题")
     
@@ -456,13 +456,13 @@ def main():
     col1, col2 = st.columns([1, 3])
     
     with col1:
-        if st.button("🌍 生成背景", key="step2", disabled=not (st.session_state.soul and st.session_state.theme)):
+        if st.button("🌍 生成背景", key="step2", disabled=not (st.session_state.personality and st.session_state.theme)):
             asyncio.run(generate_background())
     
     with col2:
         if st.session_state.background:
             st.success("✅ 已生成")
-        elif st.session_state.soul and st.session_state.theme:
+        elif st.session_state.personality and st.session_state.theme:
             st.info("⏳ 可以生成")
         else:
             st.warning("⚠️ 需要先生成灵魂和主题")
@@ -721,7 +721,7 @@ def main():
         st.header("🎉 完整故事")
         with st.expander("查看完整生成数据", expanded=False):
             final_data = {
-                'soul': st.session_state.soul['soul'] if st.session_state.soul else None,
+                'personality': st.session_state.personality['personality'] if st.session_state.personality else None,
                 'theme': st.session_state.theme['theme'] if st.session_state.theme else None,
                 'background': st.session_state.background['background'] if st.session_state.background else None,
                 'character': st.session_state.character,
@@ -746,7 +746,7 @@ def main():
     st.sidebar.header("🔄 操作")
     if st.sidebar.button("🗑️ 重置所有数据"):
         session_vars = [
-            'soul', 'theme', 'background', 'character', 'dream_true', 'dream_fake',
+            'personality', 'theme', 'background', 'character', 'dream_true', 'dream_fake',
             'condition_true', 'condition_fake', 'situation_a', 'situation_a_options',
             'situation_a_options_choice', 'situation_a_result', 'situation_b', 
             'situation_b_options', 'situation_b_options_choice', 'situation_b_result',

@@ -41,7 +41,7 @@ class SituationCLLM:
         <game_information>
             <theme>{theme}</theme>
             <background>{background}</background>
-            <soul>{soul}</soul>
+            <personality>{personality}</personality>
             <character>{character}</character>
             <dream_true>{dream_true}</dream_true>
             <dream_fake>{dream_fake}</dream_fake>
@@ -66,7 +66,7 @@ class SituationCLLM:
         
         return PromptTemplate(
             template=prompt_template,
-            input_variables=["theme", "background", "soul", "character", "dream_true", "dream_fake", "condition_true", "condition_fake", "prev_situation_description", "prev_situation_options_choice", "prev_situation_result"],
+            input_variables=["theme", "background", "personality", "character", "dream_true", "dream_fake", "condition_true", "condition_fake", "prev_situation_description", "prev_situation_options_choice", "prev_situation_result"],
             partial_variables={
                 "format_instructions": self.output_parser.get_format_instructions(),
                 "system_prompt": self.system_prompt,
@@ -78,12 +78,12 @@ class SituationCLLM:
         return self.prompt | self.llm | self.output_parser
     
     
-    def run(self, theme: str, background: str, soul: str, character: str, dream_true: str, dream_fake: str, condition_true: str, condition_fake: str, prev_situation_description: str, prev_situation_options_choice: str, prev_situation_result: str):
+    def run(self, theme: str, background: str, personality: str, character: str, dream_true: str, dream_fake: str, condition_true: str, condition_fake: str, prev_situation_description: str, prev_situation_options_choice: str, prev_situation_result: str):
         try:
             return self.chain.invoke({
                 "theme": theme,
                 "background": background,
-                "soul": soul,
+                "personality": personality,
                 "character": character,
                 "dream_true": dream_true,
                 "dream_fake": dream_fake,
@@ -98,12 +98,12 @@ class SituationCLLM:
             return None
         
     
-    async def arun(self, theme: str, background: str, soul: str, character: str, dream_true: str, dream_fake: str, condition_true: str, condition_fake: str, prev_situation_description: str, prev_situation_options_choice: str, prev_situation_result: str):
+    async def arun(self, theme: str, background: str, personality: str, character: str, dream_true: str, dream_fake: str, condition_true: str, condition_fake: str, prev_situation_description: str, prev_situation_options_choice: str, prev_situation_result: str):
         try:
             return await self.chain.ainvoke({
                 "theme": theme,
                 "background": background,
-                "soul": soul,
+                "personality": personality,
                 "character": character,
                 "dream_true": dream_true,
                 "dream_fake": dream_fake,
@@ -123,7 +123,7 @@ async def main():
     result = await situation_c_llm.arun(
         theme="科幻",
         background="未来世界",
-        soul="善良和美丽的少女，但同时具有一个正面的性格特性和高度负面的性格特性。",
+        personality="善良和美丽的少女，但同时具有一个正面的性格特性和高度负面的性格特性。",
         character="善良和美丽的少女，但同时具有一个正面的性格特性和高度负面的性格特性。",
         dream_true="想要实现一个能够改变世界的愿望",
         dream_fake="想要实现一个能够改变世界的愿望",

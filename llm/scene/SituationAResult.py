@@ -40,7 +40,7 @@ class SituationAResultLLM:
         <game_information>
             <theme description="游戏主题">{theme}</theme>
             <background description="游戏背景">{background}</background>
-            <soul description="游戏NPC的灵魂">{soul}</soul>
+            <personality description="游戏NPC的灵魂">{personality}</personality>
             <character description="游戏NPC的设定">{character}</character>
             <dream_true description="游戏NPC的真实愿望">{dream_true}</dream_true>
             <dream_fake description="游戏NPC的表面愿望">{dream_fake}</dream_fake>
@@ -65,7 +65,7 @@ class SituationAResultLLM:
         
         return PromptTemplate(
             template=prompt_template,
-            input_variables=["theme", "background", "soul", "character", "dream_true", "dream_fake", "condition_true", "condition_fake", "current_situation_description", "current_situation_options_choice"],
+            input_variables=["theme", "background", "personality", "character", "dream_true", "dream_fake", "condition_true", "condition_fake", "current_situation_description", "current_situation_options_choice"],
             partial_variables={
                 "format_instructions": self.output_parser.get_format_instructions(),
                 "system_prompt": self.system_prompt,
@@ -77,12 +77,12 @@ class SituationAResultLLM:
         return self.prompt | self.llm | self.output_parser
     
     
-    def run(self, theme: str, background: str, soul: str, character: str, dream_true: str, dream_fake: str, condition_true: str, condition_fake: str, current_situation_description: str, current_situation_options_choice: str):
+    def run(self, theme: str, background: str, personality: str, character: str, dream_true: str, dream_fake: str, condition_true: str, condition_fake: str, current_situation_description: str, current_situation_options_choice: str):
         try:
             return self.chain.invoke({
                 "theme": theme,
                 "background": background,
-                "soul": soul,
+                "personality": personality,
                 "character": character,
                 "dream_true": dream_true,
                 "dream_fake": dream_fake,
@@ -96,12 +96,12 @@ class SituationAResultLLM:
             return None
         
     
-    async def arun(self, theme: str, background: str, soul: str, character: str, dream_true: str, dream_fake: str, condition_true: str, condition_fake: str, current_situation_description: str, current_situation_options_choice: str):
+    async def arun(self, theme: str, background: str, personality: str, character: str, dream_true: str, dream_fake: str, condition_true: str, condition_fake: str, current_situation_description: str, current_situation_options_choice: str):
         try:
             return await self.chain.ainvoke({
                 "theme": theme,
                 "background": background,
-                "soul": soul,
+                "personality": personality,
                 "character": character,
                 "dream_true": dream_true,
                 "dream_fake": dream_fake,
@@ -120,7 +120,7 @@ async def main():
     result = await situation_a_result_llm.arun(
         theme="科幻",
         background="未来世界",
-        soul="善良和美丽的少女，但同时具有一个正面的性格特性和高度负面的性格特性。",
+        personality="善良和美丽的少女，但同时具有一个正面的性格特性和高度负面的性格特性。",
         character="善良和美丽的少女，但同时具有一个正面的性格特性和高度负面的性格特性。",
         dream_true="想要实现一个能够改变世界的愿望",
         dream_fake="想要实现一个能够改变世界的愿望",

@@ -3,7 +3,7 @@ from llm.story.Background import BackgroundLLM
 from llm.story.Dream import DreamLLM
 from llm.story.Condition import ConditionLLM
 from llm.story.Theme import ThemeLLM
-from llm.role.Soul import SoulLLM
+from llm.role.Personality import PersonalityLLM
 from llm.scene.SituationA import SituationALLM
 from llm.scene.SituationAOpt import SituationAOptLLM
 from llm.scene.SituationAResult import SituationAResultLLM
@@ -31,7 +31,7 @@ class Workflow:
         self.condition_llm_true = ConditionLLM(system_prompt=SYSTEM_PROMPT, type='TRUE')
         self.condition_llm_fake = ConditionLLM(system_prompt=SYSTEM_PROMPT, type='FAKE')
         self.theme_llm = ThemeLLM(system_prompt=SYSTEM_PROMPT)
-        self.soul_llm = SoulLLM(system_prompt=SYSTEM_PROMPT)
+        self.personality_llm = PersonalityLLM(system_prompt=SYSTEM_PROMPT)
         self.situation_a_llm = SituationALLM(system_prompt=SYSTEM_PROMPT)
         self.situation_a_opt_llm = SituationAOptLLM(system_prompt=SYSTEM_PROMPT)
         self.situation_a_result_llm = SituationAResultLLM(system_prompt=SYSTEM_PROMPT)
@@ -43,7 +43,7 @@ class Workflow:
         self.situation_c_result_llm = SituationCResultLLM(system_prompt=SYSTEM_PROMPT)
         self.ending_llm = EndingLLM(system_prompt=SYSTEM_PROMPT, type="NORMAL")
         # 存储各种生成的数据
-        self.soul = None
+        self.personality = None
         self.theme = None
         self.background = None
         self.character = None
@@ -65,20 +65,20 @@ class Workflow:
         self.situation_c_result = None
         self.ending = None
 
-    async def generate_soul_and_theme(self):
+    async def generate_personality_and_theme(self):
         """并行生成灵魂和主题"""
         print("生成灵魂和主题...")
         tasks = [
-            self.soul_llm.arun(),
+            self.personality_llm.arun(),
             self.theme_llm.arun(),
         ]
-        soul_result, theme_result = await asyncio.gather(*tasks)
+        personality_result, theme_result = await asyncio.gather(*tasks)
         
-        self.soul = soul_result['soul']
+        self.personality = personality_result['personality']
         self.theme = theme_result['theme']
         
         if self.verbose:
-            print(f"灵魂: {soul_result}")
+            print(f"灵魂: {personality_result}")
             print(f"主题: {theme_result}")
 
     async def generate_background(self):
@@ -95,7 +95,8 @@ class Workflow:
         print("生成角色...")
         character_result = await self.charac_llm.arun(
             theme=self.theme, 
-            background=self.background
+            background=self.background,
+            personality=self.personality,
         )
         self.character = character_result
         
@@ -160,7 +161,7 @@ class Workflow:
         print("生成情景 A...")
         situation_result = await self.situation_a_llm.arun(
             theme=self.theme,
-            soul=self.soul,
+            personality=self.personality,
             background=self.background,
             character=self.character,
             dream_true=self.dream_true,
@@ -177,7 +178,7 @@ class Workflow:
         """生成情景 A 选项"""
         print("生成情景 A 选项...")
         situation_options_result = await self.situation_a_opt_llm.arun(
-            soul=self.soul,
+            personality=self.personality,
             theme=self.theme,
             background=self.background,
             character=self.character,
@@ -205,7 +206,7 @@ class Workflow:
         situation_result_result = await self.situation_a_result_llm.arun(
             theme=self.theme,
             background=self.background,
-            soul=self.soul,
+            personality=self.personality,
             character=self.character,
             dream_true=self.dream_true,
             dream_fake=self.dream_fake,
@@ -226,7 +227,7 @@ class Workflow:
         situation_b_result = await self.situation_b_llm.arun(
             theme=self.theme,
             background=self.background,
-            soul=self.soul,
+            personality=self.personality,
             character=self.character,
             dream_true=self.dream_true,
             dream_fake=self.dream_fake,
@@ -247,7 +248,7 @@ class Workflow:
         situation_b_options_result = await self.situation_b_opt_llm.arun(
             theme=self.theme,
             background=self.background,
-            soul=self.soul,
+            personality=self.personality,
             character=self.character,
             dream_true=self.dream_true,
             dream_fake=self.dream_fake,
@@ -276,7 +277,7 @@ class Workflow:
         situation_b_result_result = await self.situation_b_result_llm.arun(
             theme=self.theme,
             background=self.background,
-            soul=self.soul,
+            personality=self.personality,
             character=self.character,
             dream_true=self.dream_true,
             dream_fake=self.dream_fake,
@@ -299,7 +300,7 @@ class Workflow:
         situation_c_result = await self.situation_c_llm.arun(
             theme=self.theme,
             background=self.background,
-            soul=self.soul,
+            personality=self.personality,
             character=self.character,
             dream_true=self.dream_true,
             dream_fake=self.dream_fake,
@@ -319,7 +320,7 @@ class Workflow:
         situation_c_options_result = await self.situation_c_opt_llm.arun(
             theme=self.theme,
             background=self.background,
-            soul=self.soul,
+            personality=self.personality,
             character=self.character,
             dream_true=self.dream_true,
             dream_fake=self.dream_fake,
@@ -348,7 +349,7 @@ class Workflow:
         situation_c_result_result = await self.situation_c_result_llm.arun(
             theme=self.theme,
             background=self.background,
-            soul=self.soul,
+            personality=self.personality,
             character=self.character,
             dream_true=self.dream_true,
             dream_fake=self.dream_fake,
@@ -368,7 +369,7 @@ class Workflow:
         """生成结局"""
         print("生成结局...")
         ending_result = await self.ending_llm.arun(
-            soul=self.soul,
+            personality=self.personality,
             character=self.character,
             dream_true=self.dream_true,
             dream_fake=self.dream_fake,
@@ -390,7 +391,7 @@ class Workflow:
 
     async def play(self):
         """执行完整的生成流程"""
-        await self.generate_soul_and_theme()
+        await self.generate_personality_and_theme()
         await self.generate_background()
         await self.generate_character()
         await self.generate_dreams()
@@ -414,7 +415,7 @@ class Workflow:
     def get_all_data(self):
         """获取所有生成的数据"""
         return {
-            'soul': self.soul,
+            'personality': self.personality,
             'theme': self.theme,
             'background': self.background,
             'character': self.character,

@@ -55,7 +55,7 @@ class EndingLLM:
         <format_instructions>{format_instructions}</format_instructions>
         
         <game_information>
-            <soul>{soul}</soul>
+            <personality>{personality}</personality>
             <character>{character}</character>
             <dream_true>{dream_true}</dream_true>
             <dream_fake>{dream_fake}</dream_fake>
@@ -93,7 +93,7 @@ class EndingLLM:
         return PromptTemplate(
             template=prompt_template,
             input_variables=[
-                "soul", "character", "dream_true", "dream_fake", "condition_true", "condition_fake", "situation_a_description", "situation_a_options_choice", "situation_a_result", "situation_b_description", "situation_b_options_choice", "situation_b_result", "situation_c_description", "situation_c_options_choice", "situation_c_result"
+                "personality", "character", "dream_true", "dream_fake", "condition_true", "condition_fake", "situation_a_description", "situation_a_options_choice", "situation_a_result", "situation_b_description", "situation_b_options_choice", "situation_b_result", "situation_c_description", "situation_c_options_choice", "situation_c_result"
             ],
             partial_variables={
                 "format_instructions": self.output_parser.get_format_instructions(),
@@ -108,10 +108,10 @@ class EndingLLM:
         return self.prompt | self.llm | self.output_parser
 
 
-    def run(self, soul: str, character: str, dream_true: str, dream_fake: str, condition_true: str, condition_fake: str, situation_a_description: str, situation_a_options_choice: str, situation_a_result: str, situation_b_description: str, situation_b_options_choice: str, situation_b_result: str, situation_c_description: str, situation_c_options_choice: str, situation_c_result: str):
+    def run(self, personality: str, character: str, dream_true: str, dream_fake: str, condition_true: str, condition_fake: str, situation_a_description: str, situation_a_options_choice: str, situation_a_result: str, situation_b_description: str, situation_b_options_choice: str, situation_b_result: str, situation_c_description: str, situation_c_options_choice: str, situation_c_result: str):
         try:
             return self.chain.invoke({
-                "soul": soul,
+                "personality": personality,
                 "character": character,
                 "dream_true": dream_true,
                 "dream_fake": dream_fake,
@@ -132,10 +132,10 @@ class EndingLLM:
             return None
 
 
-    async def arun(self, soul: str, character: str, dream_true: str, dream_fake: str, condition_true: str, condition_fake: str, situation_a_description: str, situation_a_options_choice: str, situation_a_result: str, situation_b_description: str, situation_b_options_choice: str, situation_b_result: str, situation_c_description: str, situation_c_options_choice: str, situation_c_result: str):
+    async def arun(self, personality: str, character: str, dream_true: str, dream_fake: str, condition_true: str, condition_fake: str, situation_a_description: str, situation_a_options_choice: str, situation_a_result: str, situation_b_description: str, situation_b_options_choice: str, situation_b_result: str, situation_c_description: str, situation_c_options_choice: str, situation_c_result: str):
         try:
             return await self.chain.ainvoke({
-                "soul": soul,
+                "personality": personality,
                 "character": character,
                 "dream_true": dream_true,
                 "dream_fake": dream_fake,
@@ -159,7 +159,7 @@ class EndingLLM:
 async def main():
     ending_llm = EndingLLM(type="NORMAL")
     result = await ending_llm.arun(
-        soul="善良和美丽的少女，但同时具有一个正面的性格特性和高度负面的性格特性。",
+        personality="善良和美丽的少女，但同时具有一个正面的性格特性和高度负面的性格特性。",
         character="善良和美丽的少女，但同时具有一个正面的性格特性和高度负面的性格特性。",
         dream_true="想要实现一个能够改变世界的愿望",
         dream_fake="想要实现一个能够改变世界的愿望",

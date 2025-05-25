@@ -14,7 +14,7 @@ DEFAULT_OPENAI_MODEL_NAME = os.getenv("OPENAI_MODEL_NAME", "deepseek-ai/DeepSeek
 DEFAULT_OPENAI_TEMPERATURE = 0.8
 
 
-class SoulLLM:
+class PersonalityLLM:
     def __init__(self, system_prompt: str = None):
         self.system_prompt = system_prompt
         
@@ -28,7 +28,7 @@ class SoulLLM:
     
     def get_output_parser(self):
         response_schemas = [
-            ResponseSchema(name="soul", description="One sentence that describes the soul of the character", type="string")
+            ResponseSchema(name="personality", description="One sentence that describes the personality of the character", type="string")
         ]
         return StructuredOutputParser.from_response_schemas(response_schemas)
     
@@ -40,20 +40,16 @@ class SoulLLM:
         
         <basic_characteristics description="NPC基本人物特性">
             <gender>女</gender>
-            <personality>
+            <trait>
                 <positive>
                 讨喜 (例如: 善待他人，有责任心，心胸宽广)
                 </positive>
                 <negative>
                 高度负面的性格特性 (例如：说话毒辣不留情面，极度自卑，过度自傲，非常易怒等)
                 </negative>
-            </personality>
+            </trait>
             <appearance>美丽的少女</appearance>
         </basic_characteristics>
-
-        <example>
-        1. 
-        </example>
 
         <task>
         基于NPC基本人物特性(`basic_characteristics`)，给出一个可能的灵魂设定.
@@ -92,8 +88,8 @@ class SoulLLM:
         
 
 async def main():
-    soul_llm = SoulLLM()
-    result = await soul_llm.arun()
+    personality_llm = PersonalityLLM()
+    result = await personality_llm.arun()
     print(result)
 
 

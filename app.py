@@ -86,7 +86,7 @@ async def generate_initial_content(game_id):
     try:
         # 发送进度更新
         socketio.emit('progress_update', {'stage': '正在生成灵魂和主题...', 'progress': 10})
-        await workflow.generate_soul_and_theme()
+        await workflow.generate_personality_and_theme()
         
         socketio.emit('progress_update', {'stage': '正在生成背景故事...', 'progress': 20})
         await workflow.generate_background()
@@ -108,7 +108,7 @@ async def generate_initial_content(game_id):
         
         # 更新游戏数据
         game_session['data'].update({
-            'soul': workflow.soul,
+            'personality': workflow.personality,
             'theme': workflow.theme,
             'background': workflow.background,
             'character': workflow.character,

@@ -40,7 +40,7 @@ class SituationAOptLLM:
         <format_instructions>{format_instructions}</format_instructions>
         
         <game_information description="游戏信息">
-            <soul description="游戏NPC的灵魂">{soul}</soul>
+            <personality description="游戏NPC的灵魂">{personality}</personality>
             <theme description="游戏主题">{theme}</theme>
             <background description="游戏背景">{background}</background>
             <character description="游戏NPC">{character}</character>
@@ -61,7 +61,7 @@ class SituationAOptLLM:
         <constraints>
         1. 不能照抄`condition_true`与`condition_fake`，但必须遵循.
         1. 使用有限全知视角描述故事.
-        2. 基于灵魂(`soul`)、主题(`theme`)、背景(`background`)、人物设定(`character`)、达成真实愿望的条件(`condition_true`)、达成表面愿望的条件(`condition_fake`)，生成使魔的对话选项。
+        2. 基于灵魂(`personality`)、主题(`theme`)、背景(`background`)、人物设定(`character`)、达成真实愿望的条件(`condition_true`)、达成表面愿望的条件(`condition_fake`)，生成使魔的对话选项。
         3. 基于当前情境(`current_situation_description`)，生成使魔的对话选项。
         4. 使魔的对话选项CHOICE_A和CHOICE_B应该以微妙但明确的方式推动NPC走向他们的愿望或条件的满足。
         5. Use Chinese to answer.
@@ -71,7 +71,7 @@ class SituationAOptLLM:
         
         return PromptTemplate(
             template=prompt_template,
-            input_variables=["soul", "theme", "background", "character", "dream_true", "dream_fake", "condition_true", "condition_fake", "current_situation_description"],
+            input_variables=["personality", "theme", "background", "character", "dream_true", "dream_fake", "condition_true", "condition_fake", "current_situation_description"],
             partial_variables={
                 "format_instructions": self.output_parser.get_format_instructions(),
                 "system_prompt": self.system_prompt,
@@ -84,10 +84,10 @@ class SituationAOptLLM:
         return self.prompt | self.llm | self.output_parser
     
     
-    def run(self, soul: str, theme: str, background: str, character: str, dream_true: str, dream_fake: str, condition_true: str, condition_fake: str, current_situation_description: str):
+    def run(self, personality: str, theme: str, background: str, character: str, dream_true: str, dream_fake: str, condition_true: str, condition_fake: str, current_situation_description: str):
         try:
             return self.chain.invoke({
-                "soul": soul,
+                "personality": personality,
                 "theme": theme,
                 "background": background,
                 "character": character,
@@ -102,10 +102,10 @@ class SituationAOptLLM:
             return None
         
     
-    async def arun(self, soul: str, theme: str, background: str, character: str, dream_true: str, dream_fake: str, condition_true: str, condition_fake: str, current_situation_description: str):
+    async def arun(self, personality: str, theme: str, background: str, character: str, dream_true: str, dream_fake: str, condition_true: str, condition_fake: str, current_situation_description: str):
         try:
             return await self.chain.ainvoke({
-                "soul": soul,
+                "personality": personality,
                 "theme": theme,
                 "background": background,
                 "character": character,
@@ -124,7 +124,7 @@ async def main():
     situation_aopt_llm = SituationAOptLLM()
     result = await situation_aopt_llm.arun(
         theme="奇幻",
-        soul="她的灵魂如同一朵盛开的莲花，外表美丽温柔，内心却藏着复杂的情感纠葛，既渴望被理解，也因敏感而时常自我怀疑。",
+        personality="她的灵魂如同一朵盛开的莲花，外表美丽温柔，内心却藏着复杂的情感纠葛，既渴望被理解，也因敏感而时常自我怀疑。",
         background="'在漂浮于夜空的巨型水晶群岛上，魔法水流如同瀑布般倾泻而下，滋养着悬浮的森林和发光的生物。这里的天空由七彩的风暴织成，时不时诞生出会唱歌的闪电龙，守护着隐藏在云端深处的永恒之泉，其力量能扭曲时间与空间。",
         character="{'name': '璃幽星辰', 'role': '永恒之泉的守护使者', 'age': 19, 'description': '璃幽星辰是一位美丽且善良的少女，拥有如水晶般透明的银发和闪烁星辉的眼眸。她以温柔的笑容安抚漂浮岛屿上的万物，擅长操控魔法水流滋养森林。然而，她的骄傲与固执常使她陷入孤独与挣扎，她坚信唯有自己能守护永恒之泉，不愿接受他人的帮助。'}",
         dream_true="璃幽星辰自小便肩负着守护永恒之泉的重任，在浮空的水晶群岛之间来回穿梭，用魔法水流滋养着无数生命。然而，她的孤独与骄傲令她无法真正信任他人，也使她长期感受到心灵的孤寂与沉重的责任。每当七彩风暴呼啸而过，闪电龙在夜空中歌唱时，璃幽星辰都会担忧自己终有力竭之时，而永恒之泉的秘密与安危却只能依靠她一人负担。她内心深处其实渴望摆脱与生俱来的孤独，希望不再仅仅靠自己的力量守护这份古老的奇迹。因此，璃幽星辰最大的愿望是：希望能够真正理解、信任他人，并寻找一位能够与她心灵共鸣、共同分担守护永恒之泉重责的伙伴，甚至梦想能通过魔法将自己的力量与泉水的秘密分享出去，让漂浮群岛上的众生都能守护与享受这份时空交织的奇迹，从而打破自我孤岛般的命运，实现群体共生与幸福。",
