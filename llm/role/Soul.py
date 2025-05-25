@@ -39,7 +39,14 @@ class SoulLLM:
         <format_instructions>{format_instructions}</format_instructions>
         
         <basic_characteristics description="主角基本人物特性">
-        善良和美丽的少女，同时具有一个正面的性格特性和高度负面的性格特性.
+            <gender>女</gender>
+            <personality>
+                <positive>
+                讨喜 (例如: XXXX)
+                </positive>
+                <negative>高度负面的性格特性</negative>
+            </personality>
+            <appearance>美丽的少女</appearance>
         </basic_characteristics>
 
         <task>

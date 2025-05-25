@@ -53,7 +53,7 @@ class CharacLLM:
         </game_information>
         
         <task>
-        基于`game_information`中的信息，给出一个主角设定。
+        基于`game_information`中的信息，给出一个浮夸的主角设定.
         </task>
 
         <constraints>
@@ -94,7 +94,11 @@ class CharacLLM:
 
 async def main():
     charac_llm = CharacLLM()
-    result = await charac_llm.arun()
+    result = await charac_llm.arun(
+        theme='科幻',
+        background='未来世界',
+        soul='善良和美丽的少女，但同时具有一个正面的性格特性和高度负面的性格特性'
+    )
     print(result)
 
 
