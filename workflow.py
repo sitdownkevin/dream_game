@@ -14,7 +14,7 @@ from llm.scene.SituationC import SituationCLLM
 from llm.scene.SituationCOpt import SituationCOptLLM
 from llm.scene.SituationCResult import SituationCResultLLM
 from llm.story.Ending import EndingLLM
-
+from prompt_config import SYSTEM_PROMPT
 import asyncio
 import random
 
@@ -25,23 +25,23 @@ class Workflow:
         self.verbose = verbose
         
         # 初始化所有LLM实例
-        self.charac_llm = CharacLLM()
-        self.background_llm = BackgroundLLM()
-        self.dream_llm = DreamLLM()
-        self.condition_llm_true = ConditionLLM(type='TRUE')
-        self.condition_llm_fake = ConditionLLM(type='FAKE')
-        self.theme_llm = ThemeLLM()
-        self.soul_llm = SoulLLM()
-        self.situation_a_llm = SituationALLM()
-        self.situation_a_opt_llm = SituationAOptLLM()
-        self.situation_a_result_llm = SituationAResultLLM()
-        self.situation_b_llm = SituationBLLM()
-        self.situation_b_opt_llm = SituationBOptLLM()
-        self.situation_b_result_llm = SituationBResultLLM()
-        self.situation_c_llm = SituationCLLM()
-        self.situation_c_opt_llm = SituationCOptLLM()
-        self.situation_c_result_llm = SituationCResultLLM()
-        self.ending_llm = EndingLLM(type="NORMAL")
+        self.charac_llm = CharacLLM(system_prompt=SYSTEM_PROMPT)
+        self.background_llm = BackgroundLLM(system_prompt=SYSTEM_PROMPT)
+        self.dream_llm = DreamLLM(system_prompt=SYSTEM_PROMPT)
+        self.condition_llm_true = ConditionLLM(system_prompt=SYSTEM_PROMPT, type='TRUE')
+        self.condition_llm_fake = ConditionLLM(system_prompt=SYSTEM_PROMPT, type='FAKE')
+        self.theme_llm = ThemeLLM(system_prompt=SYSTEM_PROMPT)
+        self.soul_llm = SoulLLM(system_prompt=SYSTEM_PROMPT)
+        self.situation_a_llm = SituationALLM(system_prompt=SYSTEM_PROMPT)
+        self.situation_a_opt_llm = SituationAOptLLM(system_prompt=SYSTEM_PROMPT)
+        self.situation_a_result_llm = SituationAResultLLM(system_prompt=SYSTEM_PROMPT)
+        self.situation_b_llm = SituationBLLM(system_prompt=SYSTEM_PROMPT)
+        self.situation_b_opt_llm = SituationBOptLLM(system_prompt=SYSTEM_PROMPT)
+        self.situation_b_result_llm = SituationBResultLLM(system_prompt=SYSTEM_PROMPT)
+        self.situation_c_llm = SituationCLLM(system_prompt=SYSTEM_PROMPT)
+        self.situation_c_opt_llm = SituationCOptLLM(system_prompt=SYSTEM_PROMPT)
+        self.situation_c_result_llm = SituationCResultLLM(system_prompt=SYSTEM_PROMPT)
+        self.ending_llm = EndingLLM(system_prompt=SYSTEM_PROMPT, type="NORMAL")
         # 存储各种生成的数据
         self.soul = None
         self.theme = None

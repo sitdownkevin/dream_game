@@ -51,7 +51,7 @@ class SituationAResultLLM:
         </game_information>
 
         <task>
-        根据游戏信息(`game_information`)，描述NPC选择了使魔的对话选项后的即时结果或后果。
+        根据游戏信息(`game_information`)，描述NPC听从了Player (使魔)的对话选项后的即时结果或后果。
         这个结果应该自然地由所选选项引出，并暗示其对NPC实现愿望路径的影响。
         </task>
         
