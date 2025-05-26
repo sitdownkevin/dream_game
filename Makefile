@@ -1,4 +1,4 @@
-.PHONY: help install dev run clean test format lint
+.PHONY: help run clean workflow
 
 # 默认目标
 help:
@@ -16,6 +16,11 @@ run:
 	@echo "📍 访问地址: http://localhost:5001"
 	@echo ""
 	uv run python run_game.py
+
+# 启动 Workflow
+workflow:
+	@echo "开始生成 Workflow..."
+	uv run python workflow.py
 
 # 清理环境
 clean:
