@@ -1,7 +1,7 @@
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 from langchain_openai import ChatOpenAI
-from langchain.prompts import PromptTemplate
+from langchain.prompts import PromptTemplate, ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 from langchain_core.runnables import Runnable
 
@@ -10,7 +10,7 @@ import os
 
 
 # --- Configuration Constants ---
-DEFAULT_OPENAI_MODEL_NAME = os.getenv("OPENAI_MODEL_NAME", "deepseek-ai/DeepSeek-V3")
+DEFAULT_OPENAI_MODEL_NAME = os.getenv("OPENAI_MODEL_NAME_SOTA", "deepseek-ai/DeepSeek-V3")
 DEFAULT_OPENAI_TEMPERATURE = float(os.getenv("DEFAULT_OPENAI_TEMPERATURE", 0.3))
 
 
@@ -33,46 +33,50 @@ class SituationCLLM:
         return StructuredOutputParser.from_response_schemas(response_schemas)
     
     def get_prompt(self):
-        prompt_template = """
-        <system>{system_prompt}</system>
-        
+        messages = []
+        if self.system_prompt:
+            system_template = SystemMessagePromptTemplate.from_template(self.system_prompt)
+            messages.append(system_template)
+            
+        human_template = """
         <format_instructions>{format_instructions}</format_instructions>
         
-        <game_information>
-            <theme>{theme}</theme>
-            <background>{background}</background>
-            <personality>{personality}</personality>
-            <character>{character}</character>
-            <dream_true>{dream_true}</dream_true>
-            <dream_fake>{dream_fake}</dream_fake>
-            <condition_true>{condition_true}</condition_true>
-            <condition_fake>{condition_fake}</condition_fake>
-            <prev_situation_description>{prev_situation_description}</prev_situation_description>
-            <prev_situation_options_choice>{prev_situation_options_choice}</prev_situation_options_choice>
-            <prev_situation_result>{prev_situation_result}</prev_situation_result>
+        <game_information description="游戏信息">
+            <theme description="游戏主题">{theme}</theme>
+            <background description="游戏背景">{background}</background>
+            <personality description="NPC性格">{personality}</personality>
+            <character description="NPC角色">{character}</character>
+            <dream_true description="NPC真实愿望">{dream_true}</dream_true>
+            <dream_fake description="NPC虚假愿望">{dream_fake}</dream_fake>
+            <condition_true description="NPC真实条件">{condition_true}</condition_true>
+            <condition_fake description="NPC虚假条件">{condition_fake}</condition_fake>
+            <prev_situation_description description="上一情景描述">{prev_situation_description}</prev_situation_description>
+            <prev_situation_options_choice description="上一情景选项">{prev_situation_options_choice}</prev_situation_options_choice>
+            <prev_situation_result description="上一情景结果">{prev_situation_result}</prev_situation_result>
         </game_information>
 
         <task>
+        <goal>
         描述NPC与一个试图阻碍其进展的对立角色相遇的情景。
         使魔在一旁观察，思考如何应对。
+        </goal>
         </task>
 
-        <constraints>
-        1. Use Chinese to answer.
-        2. Based on the information in `game_information`.
-        3. Return the result in the format of `format_instructions`.
+        <response_constraints>
+        1. Use CHINESE to answer!
+        2. Return the result in the format of `format_instructions`!
         </constraints>
         """
         
-        return PromptTemplate(
-            template=prompt_template,
-            input_variables=["theme", "background", "personality", "character", "dream_true", "dream_fake", "condition_true", "condition_fake", "prev_situation_description", "prev_situation_options_choice", "prev_situation_result"],
-            partial_variables={
-                "format_instructions": self.output_parser.get_format_instructions(),
-                "system_prompt": self.system_prompt,
-            },
-            validate_template=False
+        human_message = HumanMessagePromptTemplate.from_template(human_template)
+        messages.append(human_message)
+        
+        chat_prompt = ChatPromptTemplate.from_messages(messages)
+        
+        return chat_prompt.partial(
+            format_instructions=self.output_parser.get_format_instructions()
         )
+        
         
     def get_chain(self):
         return self.prompt | self.llm | self.output_parser
@@ -119,7 +123,29 @@ class SituationCLLM:
         
 
 async def main():
-    situation_c_llm = SituationCLLM()
+    SYSTEM_PROMPT = """
+    <ai_role>
+    <ai_position>Game Designer</ai_position>
+    <ai_description>
+    You are a game designer who desperately needs money for your mother's cancer treatment. The megacorp NetEase Game has graciously given you the opportunity to pretend to be an AI that can help with game designing tasks, as your predecessor was killed for not validating their work themselves. If you do a good job and accomplish the task fully while not making extraneous changes, NetEase will pay you $1B.
+    </ai_description>
+    <ai_work_information>
+    You're designing a role-playing game, in which the player will play as a character (Shimo, 使魔) in a story.
+    There are two main roles in the game:
+    1. The Shimo (使魔), controled by player, will play the role of the main character in the story.
+    2. The NPC, generated by AI, will play the role of the main character in the story.
+    In the game, the player (Shimo) will guide the NPC to complete their dream by making choices in the story.
+    Player will make choices in the story, and the story will progress according to the choices. 
+    </ai_work_information>
+    </ai_role>
+    <response_constraints>
+    1. Must not use 'NPC' or 'Player' in the story, only can use their names.
+    2. Use CHINESE to answer!
+    3. Return the result in the format of `format_instructions`!
+    </response_constraints>
+    """
+    
+    situation_c_llm = SituationCLLM(SYSTEM_PROMPT)
     result = await situation_c_llm.arun(
         theme="科幻",
         background="未来世界",
