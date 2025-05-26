@@ -40,9 +40,6 @@
     </div>
 </div>
 
-<div class="stars"></div>
-<div class="twinkling"></div>
-
 <!-- 错误提示模态框 -->
 <div class="modal fade" id="errorModal" tabindex="-1">
     <div class="modal-dialog">
@@ -70,54 +67,30 @@
 {% block scripts %}
 <script>
     const socket = io();
-    const progressBar = document.getElementById('progress-bar');
-    const progressText = document.getElementById('progress-text');
-    const stageText = document.getElementById('stage-text');
-    const tipText = document.getElementById('tip-text');
     
-    const tips = [
-        "每个故事都有其独特的灵魂...",
-        "背景设定决定了故事的基调...",
-        "角色的性格将影响整个冒险...",
-        "梦境与现实的边界正在模糊...",
-        "你的选择将塑造不同的命运..."
-    ];
-    
-    let tipIndex = 0;
-    
-    // 定期更换提示文本
-    setInterval(() => {
-        tipText.textContent = tips[tipIndex];
-        tipIndex = (tipIndex + 1) % tips.length;
-    }, 3000);
-    
-    // 监听进度更新
     socket.on('progress_update', function(data) {
-        const progress = data.progress;
-        const stage = data.stage;
-        
-        progressBar.style.width = progress + '%';
-        progressText.textContent = progress + '%';
-        stageText.textContent = stage;
+        document.getElementById('progress-text').textContent = data.stage;
+        document.querySelector('.progress-bar').style.width = data.progress + '%';
     });
     
-    // 监听生成完成
     socket.on('generation_complete', function(data) {
+        document.getElementById('progress-text').textContent = '生成完成！';
+        document.querySelector('.progress-bar').style.width = '100%';
+        
         setTimeout(() => {
             window.location.href = data.redirect;
         }, 1000);
     });
     
-    // 监听错误
     socket.on('error', function(data) {
-        document.getElementById('error-message').textContent = data.message;
-        new bootstrap.Modal(document.getElementById('errorModal')).show();
+        alert('生成过程中出现错误：' + data.message);
     });
     
     // 页面加载完成后开始生成
     document.addEventListener('DOMContentLoaded', function() {
-        socket.emit('start_generation');
+        setTimeout(() => {
+            socket.emit('start_generation');
+        }, 1000);
     });
 </script>
-<script src="{{ url_for('static', filename='js/stars.js') }}"></script>
 {% endblock %} 

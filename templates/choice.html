@@ -3,6 +3,14 @@
 {% block title %}情景 {{ stage }} - 做出你的选择{% endblock %}
 
 {% block content %}
+<!-- 隐藏的当前阶段信息 -->
+<script type="application/json" id="current-stage">
+{% if stage == 'A' %}"choice_a"{% elif stage == 'B' %}"choice_b"{% elif stage == 'C' %}"choice_c"{% endif %}
+</script>
+
+<!-- 隐藏的情景文本数据 -->
+<script type="application/json" id="situation-data">{{ situation|tojson if situation else '""' }}</script>
+
 <div class="choice-section">
     <div class="container">
         <div class="row justify-content-center">
@@ -41,8 +49,8 @@
                                     <div class="situation-icon mb-3">
                                         <i class="fas fa-scroll"></i>
                                     </div>
-                                    <div class="situation-text">
-                                        {{ situation|safe }}
+                                    <div id="situation-text" class="situation-text">
+                                        <!-- 情景内容将通过打字机效果显示 -->
                                     </div>
                                 </div>
                             </div>
@@ -50,11 +58,11 @@
                     </div>
                     
                     <!-- 选项 -->
-                    <div class="choices-container">
-                        <h4 class="choices-title mb-3">
+                    <div class="choices-container" style="opacity: 0;">
+                        <!-- <h4 class="choices-title mb-3">
                             <i class="fas fa-crossroads me-2"></i>
                             你会如何选择？
-                        </h4>
+                        </h4> -->
                         
                         {% if options %}
                         <div class="row">
@@ -81,6 +89,14 @@
                         <div class="alert alert-warning">
                             <i class="fas fa-exclamation-triangle me-2"></i>
                             选项正在生成中，请稍候...
+                            <div class="mt-3">
+                                <button class="btn btn-outline-primary" onclick="regenerateOptions()">
+                                    <i class="fas fa-sync-alt me-2"></i>重新生成选项
+                                </button>
+                                <a href="/debug_session" class="btn btn-outline-info ms-2" target="_blank">
+                                    <i class="fas fa-bug me-2"></i>查看调试信息
+                                </a>
+                            </div>
                         </div>
                         {% endif %}
                     </div>
@@ -89,9 +105,6 @@
         </div>
     </div>
 </div>
-
-<div class="stars"></div>
-<div class="twinkling"></div>
 
 <!-- 确认选择模态框 -->
 <div class="modal fade" id="confirmModal" tabindex="-1">
@@ -136,10 +149,47 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="{{ url_for('static', filename='js/typewriter.js') }}"></script>
 <script>
     const socket = io();
     let selectedChoice = null;
     let selectedChoiceText = null;
+    
+    // 页面加载完成后启动打字机效果
+    document.addEventListener('DOMContentLoaded', function() {
+        // 获取隐藏的情景文本数据
+        const situationElement = document.getElementById('situation-data');
+        let situationText = '';
+        
+        if (situationElement) {
+            try {
+                situationText = JSON.parse(situationElement.textContent);
+            } catch (e) {
+                console.error('Error parsing situation data:', e);
+                situationText = situationElement.textContent;
+            }
+        }
+        
+        if (situationText && situationText.trim() !== '') {
+            // 检查是否是通过导航跳转来的
+            const urlParams = new URLSearchParams(window.location.search);
+            const isNavigated = urlParams.has('navigated') || document.referrer.includes('/navigate/');
+            
+            if (isNavigated) {
+                // 如果是跳转来的，直接显示文字
+                document.getElementById('situation-text').textContent = situationText;
+                showChoicesWithDelay(100);
+            } else {
+                // 第一次加载，启动打字机效果
+                typewriter('situation-text', situationText, 30, function() {
+                    showChoicesWithDelay(500);
+                });
+            }
+        } else {
+            // 如果没有情景文字，直接显示选项
+            showChoicesWithDelay(0);
+        }
+    });
     
     // 选择选项
     document.querySelectorAll('.choice-card').forEach(card => {
@@ -206,6 +256,42 @@
         alert('发生错误：' + data.message);
         bootstrap.Modal.getInstance(document.getElementById('processingModal')).hide();
     });
+    
+    // 重新生成选项的函数
+    function regenerateOptions() {
+        const currentStage = '{{ stage }}';
+        if (currentStage === 'C') {
+            // 显示加载状态
+            const alertDiv = document.querySelector('.alert-warning');
+            alertDiv.innerHTML = `
+                <i class="fas fa-spinner fa-spin me-2"></i>
+                正在重新生成第C章选项，请稍候...
+            `;
+            
+            // 调用强制生成API
+            fetch(`/force_generate_options/${currentStage}`, {
+                method: 'GET'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('生成失败：' + data.error);
+                    location.reload();
+                } else {
+                    // 监听生成完成事件
+                    socket.on('options_generated', function(generatedData) {
+                        if (generatedData.stage === currentStage) {
+                            location.reload();
+                        }
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('网络错误，请重试');
+                location.reload();
+            });
+        }
+    }
 </script>
-<script src="{{ url_for('static', filename='js/stars.js') }}"></script>
 {% endblock %} 

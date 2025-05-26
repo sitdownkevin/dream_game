@@ -14,6 +14,44 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 # 存储游戏会话
 game_sessions = {}
 
+# 定义游戏阶段顺序
+GAME_STAGES = ['loading', 'choice_a', 'choice_b', 'choice_c', 'ending']
+
+def get_navigation_info(game_id, current_stage):
+    """获取导航信息"""
+    if not game_id or game_id not in game_sessions:
+        return {'can_go_back': False, 'can_go_forward': False, 'prev_stage': None, 'next_stage': None}
+    
+    game_session = game_sessions[game_id]
+    current_index = GAME_STAGES.index(current_stage) if current_stage in GAME_STAGES else 0
+    
+    # 检查是否可以后退（总是允许后退，除了第一个阶段）
+    can_go_back = current_index > 0
+    prev_stage = GAME_STAGES[current_index - 1] if can_go_back else None
+    
+    # 检查是否可以前进（需要有内容才能前进）
+    can_go_forward = False
+    next_stage = None
+    
+    if current_index < len(GAME_STAGES) - 1:
+        next_stage = GAME_STAGES[current_index + 1]
+        # 根据当前阶段检查是否有必要的内容
+        if current_stage == 'loading':
+            can_go_forward = 'situation_a' in game_session['data']
+        elif current_stage == 'choice_a':
+            can_go_forward = 'situation_b' in game_session['data']
+        elif current_stage == 'choice_b':
+            can_go_forward = 'situation_c' in game_session['data'] and 'situation_c_options' in game_session['data']
+        elif current_stage == 'choice_c':
+            can_go_forward = 'ending' in game_session['data']
+    
+    return {
+        'can_go_back': can_go_back,
+        'can_go_forward': can_go_forward,
+        'prev_stage': prev_stage,
+        'next_stage': next_stage
+    }
+
 @app.route('/')
 def index():
     """游戏主页"""
@@ -39,27 +77,32 @@ def game_stage(stage):
         return redirect(url_for('index'))
     
     game_session = game_sessions[game_id]
+    navigation = get_navigation_info(game_id, stage)
     
     if stage == 'loading':
-        return render_template('loading.html')
+        return render_template('loading.html', navigation=navigation)
     elif stage == 'choice_a':
         return render_template('choice.html', 
                              stage='A',
                              situation=game_session['data'].get('situation_a'),
-                             options=game_session['data'].get('situation_a_options'))
+                             options=game_session['data'].get('situation_a_options'),
+                             navigation=navigation)
     elif stage == 'choice_b':
         return render_template('choice.html', 
                              stage='B',
                              situation=game_session['data'].get('situation_b'),
-                             options=game_session['data'].get('situation_b_options'))
+                             options=game_session['data'].get('situation_b_options'),
+                             navigation=navigation)
     elif stage == 'choice_c':
         return render_template('choice.html', 
                              stage='C',
                              situation=game_session['data'].get('situation_c'),
-                             options=game_session['data'].get('situation_c_options'))
+                             options=game_session['data'].get('situation_c_options'),
+                             navigation=navigation)
     elif stage == 'ending':
         return render_template('ending.html', 
-                             data=game_session['data'])
+                             data=game_session['data'],
+                             navigation=navigation)
     else:
         return redirect(url_for('index'))
 
@@ -198,6 +241,96 @@ async def handle_choice_async(game_id, choice, stage):
             
     except Exception as e:
         socketio.emit('error', {'message': f'处理选择时出现错误: {str(e)}'})
+
+@app.route('/navigate/<direction>')
+def navigate(direction):
+    """处理前进后退导航"""
+    game_id = session.get('game_id')
+    if not game_id or game_id not in game_sessions:
+        return redirect(url_for('index'))
+    
+    current_stage = request.args.get('current_stage')
+    if not current_stage:
+        return redirect(url_for('index'))
+    
+    navigation = get_navigation_info(game_id, current_stage)
+    
+    if direction == 'back' and navigation['can_go_back']:
+        return redirect(url_for('game_stage', stage=navigation['prev_stage']) + '?navigated=true')
+    elif direction == 'forward' and navigation['can_go_forward']:
+        return redirect(url_for('game_stage', stage=navigation['next_stage']) + '?navigated=true')
+    else:
+        # 如果不能导航，返回当前页面
+        return redirect(url_for('game_stage', stage=current_stage))
+
+@app.route('/debug_session')
+def debug_session():
+    """调试路由：查看当前游戏会话数据"""
+    game_id = session.get('game_id')
+    if not game_id or game_id not in game_sessions:
+        return jsonify({'error': '游戏会话不存在'})
+    
+    game_session = game_sessions[game_id]
+    return jsonify({
+        'game_id': game_id,
+        'stage': game_session['stage'],
+        'data_keys': list(game_session['data'].keys()),
+        'has_situation_c': 'situation_c' in game_session['data'],
+        'has_situation_c_options': 'situation_c_options' in game_session['data'],
+        'situation_c_content': game_session['data'].get('situation_c', 'NOT_FOUND'),
+        'situation_c_options': game_session['data'].get('situation_c_options', 'NOT_FOUND')
+    })
+
+@app.route('/force_generate_options/<stage>')
+def force_generate_options(stage):
+    """强制生成指定阶段的选项"""
+    game_id = session.get('game_id')
+    if not game_id or game_id not in game_sessions:
+        return jsonify({'error': '游戏会话不存在'}), 400
+    
+    game_session = game_sessions[game_id]
+    workflow = game_session['workflow']
+    
+    try:
+        if stage == 'C':
+            # 对于第C章，我们需要确保有前面的数据
+            if 'situation_b_result' not in game_session['data']:
+                return jsonify({'error': '缺少第B章的选择结果，无法生成第C章选项'}), 400
+            
+            # 在新线程中生成
+            def run_generation():
+                asyncio.run(generate_stage_c_options(game_id))
+            
+            thread = threading.Thread(target=run_generation)
+            thread.start()
+            
+            return jsonify({'status': 'generating'})
+        else:
+            return jsonify({'error': '不支持的阶段'}), 400
+    except Exception as e:
+        return jsonify({'error': f'生成失败: {str(e)}'}), 500
+
+async def generate_stage_c_options(game_id):
+    """生成第C章的选项"""
+    game_session = game_sessions[game_id]
+    workflow = game_session['workflow']
+    
+    try:
+        # 确保有第C章的情景
+        if 'situation_c' not in game_session['data']:
+            await workflow.generate_situation_c()
+            
+        await workflow.generate_situation_c_options()
+        
+        game_session['data'].update({
+            'situation_c': workflow.situation_c,
+            'situation_c_options': workflow.situation_c_options,
+        })
+        
+        socketio.emit('options_generated', {'stage': 'C', 'redirect': '/game/choice_c'})
+        
+    except Exception as e:
+        socketio.emit('error', {'message': f'生成第C章选项时出现错误: {str(e)}'})
 
 @app.route('/restart')
 def restart_game():
