@@ -10,8 +10,8 @@ load_dotenv(find_dotenv())
 
 # --- Configuration Constants ---
 DEFAULT_OPENAI_MODEL_NAME = os.getenv(
-    "OPENAI_MODEL_NAME", "deepseek-ai/DeepSeek-V3")
-DEFAULT_OPENAI_TEMPERATURE = 1.0
+    "OPENAI_MODEL_NAME", "gpt-4.1-mini")
+DEFAULT_OPENAI_TEMPERATURE = float(os.getenv("OPENAI_TEMPERATURE_HIGH", 0.8))
 
 
 class CharacLLM:
